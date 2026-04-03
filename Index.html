@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Agenda Médica – Dra. Maíra Vilela</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background: #f5f7fa;
+}
+h1, h2 {
+    color: #2c3e50;
+}
+form {
+    background: #fff;
+    padding: 20px;
+    border-radius: 6px;
+    margin-bottom: 30px;
+}
+label {
+    display: block;
+    margin-top: 10px;
+}
+input, select, textarea {
+    width: 100%;
+    padding: 8px;
+}
+button {
+    margin-top: 15px;
+    padding: 10px;
+    background: #2980b9;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+button:hover {
+    background: #1f6391;
+}
+.card {
+    background: white;
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Agenda Médica – Dra. Maíra Vilela</h1>
+<p>Contato: (61) 98589-5499 | Brasília – DF</p>
+
+<form id="formPaciente">
+<h2>Cadastro de Paciente / Sessão</h2>
+
+<label>ID do Paciente</label>
+<input required>
+
+<label>Sintomas</label>
+<textarea></textarea>
+
+<label>Diagnóstico</label>
+<textarea></textarea>
+
+<label>Tratamento Indicado</label>
+<input>
+
+<label>Nº de Sessões</label>
+<input type="number">
+
+<label>Datas das Sessões</label>
+<input type="date">
+
+<label>Local de Atendimento</label>
+<select>
+    <option>Clínica Life</option>
+    <option>Outra Clínica</option>
+    <option>Cirurgia em Hospital</option>
+</select>
+
+<button type="submit">Salvar</button>
+</form>
+
+<form id="formCirurgia">
+<h2>Cadastro de Cirurgia</h2>
+
+<label>Hospital</label>
+<input>
+
+<label>Médico Principal</label>
+<input>
+
+<label>Médico Assistente</label>
+<input>
+
+<label>Data da Cirurgia</label>
+<input type="date">
+
+<label>Plano de Saúde</label>
+<input>
+
+<label>Valor à vista (PIX)</label>
+<input type="number" id="valorPix">
+
+<label>Forma de Pagamento</label>
+<select id="pagamento">
+<option value="pix">À vista PIX</option>
+<option value="3x">Cartão 3x (+3%)</option>
+<option value="6x">Cartão 6x (+5%)</option>
+<option value="10x">Cartão 10x (+10%)</option>
+</select>
+
+<label>Pagamento</label>
+<select>
+<option>Pendente</option>
+<option>Pago</option>
+</select>
+
+<button type="button" onclick="calcularPagamento()">Calcular Parcelas</button>
+<p id="resultado"></p>
+
+</form>
+
+<script>
+function calcularPagamento() {
+    let pix = parseFloat(document.getElementById("valorPix").value);
+    let metodo = document.getElementById("pagamento").value;
+    let total = pix;
+    let parcelas = 1;
+
+    if (metodo === "3x") {
+        total = pix * 1.03;
+        parcelas = 3;
+    } else if (metodo === "6x") {
+        total = pix * 1.05;
+        parcelas = 6;
+    } else if (metodo === "10x") {
+        total = pix * 1.10;
+        parcelas = 10;
+    }
+
+    let valorParcela = total / parcelas;
+
+    document.getElementById("resultado").innerHTML =
+        `Total: R$ ${total.toFixed(2)} <br>
+         Parcelas: ${parcelas} x R$ ${valorParcela.toFixed(2)}`;
+}
+
+// Lembrete 2 dias antes (simulado)
+setInterval(() => {
+    alert("Lembrete: verificar sessões/cirurgias agendadas para os próximos 2 dias.");
+}, 86400000);
+</script>
+
+</body>
+</html>
