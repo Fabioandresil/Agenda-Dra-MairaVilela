@@ -2,37 +2,130 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Agenda – Dra. Maíra Vilela</title>
+<title>Agenda Médica – Dra. Maíra Vilela</title>
 
 <style>
-body{margin:0;font-family:Arial;background:#eef2f7}
-header{background:linear-gradient(135deg,#1e90ff,#1c5fa8);
-color:#fff;padding:25px;display:flex;gap:20px;align-items:center}
-header img{width:100px;height:100px;border-radius:50%;border:4px solid #fff}
-nav{background:#fff;padding:15px;display:flex;justify-content:center;gap:20px}
-nav button{padding:10px 22px;border:none;border-radius:20px;background:#1e90ff;color:#fff;cursor:pointer}
-section{max-width:1200px;margin:30px auto;background:#fff;padding:25px;border-radius:10px;display:none}
+/* ===================== BASE ===================== */
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#eef2f7;
+  color:#333;
+}
+header{
+  background:linear-gradient(135deg,#1e90ff,#1c5fa8);
+  color:white;
+  padding:25px;
+  display:flex;
+  gap:20px;
+  align-items:center;
+}
+header img{
+  width:100px;
+  height:100px;
+  border-radius:50%;
+  border:4px solid white;
+  object-fit:cover;
+}
+nav{
+  background:white;
+  padding:15px;
+  display:none;
+  justify-content:center;
+  gap:20px;
+  box-shadow:0 2px 5px rgba(0,0,0,.1);
+}
+nav button{
+  padding:10px 22px;
+  border-radius:20px;
+  border:none;
+  background:#1e90ff;
+  color:white;
+  cursor:pointer;
+}
+section{
+  max-width:1200px;
+  margin:30px auto;
+  background:white;
+  padding:25px;
+  border-radius:10px;
+  display:none;
+}
 section.active{display:block}
-label{display:block;margin-top:10px}
-input,select,textarea{width:100%;padding:8px}
-button{margin-top:10px;padding:10px;background:#1e90ff;color:#fff;border:none;border-radius:6px}
-.hidden{display:none}
+h2{margin-top:0}
 
-/* CALENDAR */
-#calendar{display:grid;grid-template-columns:80px repeat(14,1fr);gap:1px;background:#ccc;font-size:12px}
-.cell{background:#fff;min-height:40px;text-align:center;cursor:pointer}
+/* ===================== FORM ===================== */
+label{display:block;margin-top:10px;font-weight:bold}
+input,textarea,select{
+  width:100%;
+  padding:8px;
+  margin-top:4px;
+}
+textarea{resize:vertical}
+button{
+  margin-top:15px;
+  padding:10px;
+  background:#1e90ff;
+  color:white;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+button:disabled{
+  background:#aaa;
+  cursor:not-allowed;
+}
+
+/* ===================== CALENDÁRIO ===================== */
+#calendar{
+  display:grid;
+  grid-template-columns:80px repeat(14,1fr);
+  gap:1px;
+  background:#ccc;
+  margin-top:20px;
+  font-size:12px;
+}
+.cell{
+  background:white;
+  min-height:40px;
+  text-align:center;
+  cursor:pointer;
+  padding:4px;
+}
 .hora{background:#f0f0f0;font-weight:bold}
 .header{background:#e0e0e0;font-weight:bold}
+
+/* STATUS */
 .disponivel{background:#e8f5e9}
-.bloqueado{background:#e0e0e0}
+.consulta{background:#bbdefb}
+.sessao{background:#dcedc8}
+.cirurgia{background:#ffcdd2}
 .retorno{background:#ffe0b2}
+.bloqueado{background:#e0e0e0}
+.ausente{background:#ffccbc}
+.ferias{background:#cfd8dc}
+
+/* ===================== MODAL ===================== */
+#modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.4);
+}
+#modalBox{
+  background:white;
+  max-width:420px;
+  margin:8% auto;
+  padding:20px;
+  border-radius:10px;
+}
 </style>
 </head>
 
 <body>
 
 <header>
-  img/dra_mairavilela.jpg
+  <img src="img/dra_mairavilela.jpg" alt="Dra. Maíra Vilela">
   <div>
     <h1>Dra. Maíra Vilela</h1>
     <p>Cirurgiã Vascular – Brasília</p>
@@ -40,107 +133,251 @@ button{margin-top:10px;padding:10px;background:#1e90ff;color:#fff;border:none;bo
   </div>
 </header>
 
-<nav id="menu" class="hidden">
+<nav id="menu">
   <button onclick="show('agenda')">Agenda</button>
   <button onclick="show('prontuario')">Prontuários</button>
 </nav>
 
-<!-- LOGIN PERFIL -->
+<!-- ===================== LOGIN ===================== -->
 <section id="login" class="active">
   <h2>Acesso ao Sistema</h2>
-
   <label>Perfil</label>
   <select id="perfil">
     <option value="dra">Dra. Maíra</option>
     <option value="secretaria">Secretária</option>
   </select>
-
   <label>Senha</label>
   <input type="password" id="senha">
-
-  <button onclick="entrar()">Entrar</button>
+  <button onclick="login()">Entrar</button>
 </section>
 
-<!-- AGENDA -->
+<!-- ===================== AGENDA ===================== -->
 <section id="agenda">
   <h2>📅 Agenda – Próximas 2 semanas</h2>
   <div id="calendar"></div>
 </section>
 
-<!-- PRONTUÁRIO -->
+<!-- ===================== PRONTUÁRIO ===================== -->
 <section id="prontuario">
-  <h2>📁 Prontuário</h2>
+<h2>📁 Prontuário do Paciente</h2>
 
-  <label>Nome</label>
-  <input id="p_nome">
+<h3>Dados do Paciente</h3>
+<label>Nome</label><input id="p_nome">
+<label>CPF</label><input id="p_cpf">
+<label>Data de nascimento</label><input type="date" id="p_nasc">
+<label>Peso (kg)</label><input id="p_peso">
+<label>Altura (cm)</label><input id="p_altura">
+<label>Tipo sanguíneo</label><input id="p_sangue">
+<label>Doenças pré‑existentes</label><textarea id="p_doencas"></textarea>
 
-  <label>CPF</label>
-  <input id="p_cpf">
+<hr>
 
-  <label>Data Atendimento</label>
-  <input type="date" id="a_data">
+<h3>Novo Atendimento</h3>
+<label>Data de atendimento</label><input type="date" id="a_data">
 
-  <label>Observações Médicas</label>
-  <textarea id="a_obs"></textarea>
+<label>Tipo</label>
+<select id="a_tipo" onchange="toggleCirurgia()">
+  <option value="consulta">Consulta</option>
+  <option value="sessao">Sessão</option>
+  <option value="cirurgia">Cirurgia</option>
+</select>
 
-  <h3>💰 Financeiro</h3>
-  <label>Valor</label>
-  <input type="number" id="f_valor">
+<label>Observações clínicas</label><textarea id="a_obs"></textarea>
 
-  <label>Status</label>
-  <select id="f_status">
-    <option>Não pago</option>
-    <option>Pago</option>
-  </select>
+<label>Data de retorno</label><input type="date" id="a_retorno">
 
-  <button onclick="salvarProntuario()">Salvar</button>
+<div id="cirurgiaCampos" style="display:none">
+  <h4>Dados da Cirurgia</h4>
+  <label>Hospital</label><input id="c_hospital">
+  <label>Médico principal</label><input id="c_principal">
+  <label>Médico assistente</label><input id="c_assistente">
+  <label>Plano de saúde</label><input id="c_plano">
+</div>
+
+<h3>💰 Financeiro</h3>
+<label>Valor base (PIX)</label><input type="number" id="f_valor">
+
+<label>Forma de pagamento</label>
+<select id="f_pagamento" onchange="calcularPagamento()">
+  <option value="pix">PIX</option>
+  <option value="3x">3x (+3%)</option>
+  <option value="6x">6x (+5%)</option>
+  <option value="10x">10x (+10%)</option>
+</select>
+
+<p id="resultadoPagamento"></p>
+
+<label>Status do pagamento</label>
+<select id="f_status">
+  <option value="nao">Não pago</option>
+  <option value="sim">Pago</option>
+</select>
+
+<button onclick="salvarProntuario()">Salvar Atendimento</button>
+
+<hr>
+<h3>📚 Histórico</h3>
+<div id="historico"></div>
 </section>
 
-<script>
-let perfilAtual = null;
+<!-- ===================== MODAL AGENDA ===================== -->
+<div id="modal">
+  <div id="modalBox">
+    <h3>Editar Horário</h3>
+    <label>Status</label>
+    <select id="m_status">
+      <option value="disponivel">Disponível</option>
+      <option value="consulta">Consulta</option>
+      <option value="sessao">Sessão</option>
+      <option value="cirurgia">Cirurgia</option>
+      <option value="retorno">Retorno</option>
+      <option value="bloqueado">Bloqueado</option>
+      <option value="ausente">Ausente</option>
+      <option value="ferias">Férias</option>
+    </select>
+    <label>Local</label>
+    <select id="m_local">
+      <option>Clínica Life</option>
+      <option>Outra clínica</option>
+      <option>Hospital</option>
+    </select>
+    <label>CPF do paciente (se houver)</label>
+    <input id="m_cpf">
+    <button onclick="salvarSlot()">Salvar</button>
+    <button onclick="fecharModal()">Cancelar</button>
+  </div>
+</div>
 
+<script>
+/* ===================== ESTADO ===================== */
+let perfilAtual=null;
+let slotAtual=null;
+
+/* ===================== LOGIN ===================== */
 function show(id){
  document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
  document.getElementById(id).classList.add("active");
 }
-
-function entrar(){
- const perfil=document.getElementById("perfil").value;
- const senha=document.getElementById("senha").value;
-
- if((perfil==="dra" && senha==="dra123") ||
-    (perfil==="secretaria" && senha==="secretaria123")){
-   perfilAtual=perfil;
-   localStorage.setItem("perfil",perfil);
-   document.getElementById("menu").classList.remove("hidden");
+function login(){
+ const p=perfil.value,s=senha.value;
+ if((p==="dra"&&s==="dra123")||(p==="secretaria"&&s==="secretaria123")){
+   perfilAtual=p;
+   menu.style.display="flex";
    aplicarPermissoes();
    show("agenda");
    renderAgenda();
- }else{
-   alert("Senha incorreta");
- }
+ }else alert("Senha incorreta");
 }
-
 function aplicarPermissoes(){
  if(perfilAtual==="secretaria"){
   a_obs.disabled=true;
   f_valor.disabled=true;
+  f_pagamento.disabled=true;
   f_status.disabled=true;
+  cirurgiaCampos.style.display="none";
  }
 }
 
-function renderAgenda(){
- const calendar=document.getElementById("calendar");
- calendar.innerHTML="";
- calendar.innerHTML="<p>(Agenda funcional – edição livre para Dra, visualização para secretária)</p>";
+/* ===================== FINANCEIRO ===================== */
+function calcularPagamento(){
+ let v=Number(f_valor.value),f=1,p=1;
+ if(f_pagamento.value==="3x"){f=1.03;p=3}
+ if(f_pagamento.value==="6x"){f=1.05;p=6}
+ if(f_pagamento.value==="10x"){f=1.10;p=10}
+ let total=(v*f).toFixed(2);
+ resultadoPagamento.innerText=
+ `Total R$ ${total} — ${p}x de R$ ${(total/p).toFixed(2)}`;
 }
 
+/* ===================== PRONTUÁRIO ===================== */
+function toggleCirurgia(){
+ cirurgiaCampos.style.display = a_tipo.value==="cirurgia" ? "block" : "none";
+}
 function salvarProntuario(){
- if(perfilAtual!=="dra"){
-   alert("Apenas a médica pode editar prontuários.");
-   return;
+ if(perfilAtual!=="dra"){alert("Apenas a médica pode salvar.");return;}
+ const cpf=p_cpf.value.replace(/\D/g,"");
+ const id="pac_"+cpf;
+ let dados=JSON.parse(localStorage.getItem(id)||"[]");
+
+ dados.push({
+   data:a_data.value,
+   tipo:a_tipo.value,
+   obs:a_obs.value,
+   retorno:a_retorno.value,
+   financeiro:{
+     valor:f_valor.value,
+     forma:f_pagamento.value,
+     status:f_status.value
+   }
+ });
+ localStorage.setItem(id,JSON.stringify(dados));
+ if(a_retorno.value){
+  let r=JSON.parse(localStorage.getItem("agendaRetornos")||"{}");
+  r[a_retorno.value+"_9"]=cpf;
+  localStorage.setItem("agendaRetornos",JSON.stringify(r));
  }
- alert("Prontuário salvo.");
+ renderHistorico(id);
+ alert("Atendimento salvo.");
+}
+function renderHistorico(id){
+ historico.innerHTML="";
+ let arr=JSON.parse(localStorage.getItem(id)||"[]");
+ arr.forEach((h,i)=>{
+  historico.innerHTML+=`<div>
+    <b>${h.data}</b> – ${h.tipo} – R$ ${h.financeiro.valor}
+  </div>`;
+ });
+}
+
+/* ===================== AGENDA ===================== */
+function renderAgenda(){
+ const cal=document.getElementById("calendar");
+ cal.innerHTML="";
+ const hoje=new Date();
+ const slots=JSON.parse(localStorage.getItem("agendaSlots")||"{}");
+ const ret=JSON.parse(localStorage.getItem("agendaRetornos")||"{}");
+ const dias=[...Array(14)].map((_,i)=>new Date(hoje.getFullYear(),hoje.getMonth(),hoje.getDate()+i));
+
+ cal.appendChild(document.createElement("div"));
+ dias.forEach(d=>{
+  let h=document.createElement("div");
+  h.className="cell header";
+  h.innerText=d.toLocaleDateString("pt-BR",{weekday:"short",day:"2-digit",month:"2-digit"});
+  cal.appendChild(h);
+ });
+
+ for(let h=8;h<=18;h++){
+  let hh=document.createElement("div");
+  hh.className="cell hora";hh.innerText=h+":00";
+  cal.appendChild(hh);
+  dias.forEach(d=>{
+    let key=d.toISOString().slice(0,10)+"_"+h;
+    let c=document.createElement("div");
+    if(ret[key]){
+      c.className="cell retorno";
+      c.innerText="Retorno";
+    }else if(slots[key]){
+      c.className="cell "+slots[key].status;
+      c.innerText=slots[key].cpf||"";
+    }else{
+      c.className="cell disponivel";
+    }
+    c.onclick=()=>abrirModal(key);
+    cal.appendChild(c);
+  });
+ }
+}
+function abrirModal(k){
+ if(perfilAtual!=="dra")return;
+ slotAtual=k;
+ modal.style.display="block";
+}
+function fecharModal(){modal.style.display="none"}
+function salvarSlot(){
+ let s=JSON.parse(localStorage.getItem("agendaSlots")||"{}");
+ s[slotAtual]={status:m_status.value,local:m_local.value,cpf:m_cpf.value};
+ localStorage.setItem("agendaSlots",JSON.stringify(s));
+ fecharModal();renderAgenda();
 }
 </script>
 
