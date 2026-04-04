@@ -322,6 +322,81 @@ sintomas.value=r.sintomas;
 diagnostico.value=r.diagnostico;
 tratamento.value=r.tratamento;
 }
+const calendarEl = document.getElementById("calendar");
+const modal = document.getElementById("modal");
+let currentKey = null;
+
+function gerarDatas() {
+  const dias = [];
+  const hoje = new Date();
+  for (let i=0;i<14;i++) {
+    const d = new Date(hoje);
+    d.setDate(d.getDate()+i);
+    dias.push(d);
+  }
+  return dias;
+}
+
+function gerarAgenda() {
+  const dias = gerarDatas();
+  calendarEl.innerHTML = "";
+
+  calendarEl.appendChild(document.createElement("div"));
+
+  dias.forEach(d=>{
+    const h = document.createElement("div");
+    h.className="cell header";
+    h.innerText = d.toLocaleDateString("pt-BR",{weekday:"short",day:"2-digit",month:"2-digit"});
+    calendarEl.appendChild(h);
+  });
+
+  for (let h=8; h<=18; h++) {
+    const hora = document.createElement("div");
+    hora.className="cell hora";
+    hora.innerText = `${h}:00`;
+    calendarEl.appendChild(hora);
+
+    dias.forEach(d=>{
+      const key = d.toISOString().slice(0,10)+"_"+h;
+      const data = JSON.parse(localStorage.getItem("agendaSlots")||"{}")[key];
+
+      const c = document.createElement("div");
+      c.className = "cell "+(data?.status || "disponivel");
+      c.innerText = data?.local || "";
+      c.onclick = ()=>abrirModal(d,h,key);
+      calendarEl.appendChild(c);
+    });
+  }
+}
+
+function abrirModal(date,hour,key) {
+  currentKey = key;
+  editDate.value = date.toLocaleDateString("pt-BR");
+  editHour.value = `${hour}:00`;
+
+  const dados = JSON.parse(localStorage.getItem("agendaSlots")||"{}")[key] || {};
+  editStatus.value = dados.status || "disponivel";
+  editLocal.value = dados.local || "";
+  modal.style.display="block";
+}
+
+function fecharModal() {
+  modal.style.display="none";
+}
+
+function salvarSlot() {
+  const agenda = JSON.parse(localStorage.getItem("agendaSlots")||"{}");
+  agenda[currentKey] = {
+    status: editStatus.value,
+    local: editLocal.value
+  };
+  localStorage.setItem("agendaSlots",JSON.stringify(agenda));
+  fecharModal();
+  gerarAgenda();
+}
+
+gerarAgenda();
+
 </script>
 </body>
 </html>
