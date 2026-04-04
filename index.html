@@ -248,7 +248,16 @@ document.getElementById(id).classList.add("active");
 }
 
 function liberarAgenda(){
-if(senhaAgenda.value===SENHA_AGENDA)mostrar("agenda");else alert("Senha incorreta");
+  if(senhaAgenda.value === SENHA_AGENDA){
+    mostrar("agenda");
+    setTimeout(() => {
+      if (typeof gerarAgenda === "function") {
+        gerarAgenda();
+      }
+    }, 0);
+  } else {
+    alert("Senha incorreta");
+  }
 }
 
 function liberarProntuario(){
