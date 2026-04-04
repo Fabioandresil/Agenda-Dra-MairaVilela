@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Agenda Médica – Dra. Maíra Vilela</title>
+<title>Agenda Dra. Maíra Vilela</title>
 
 <style>
 body {
@@ -28,13 +28,11 @@ header img {
     border-radius: 50%;
     object-fit: cover;
     border: 4px solid white;
-    background: white;
 }
 
 header h1 {
     margin: 0;
     font-size: 26px;
-    font-weight: 600;
 }
 
 header p {
@@ -59,7 +57,6 @@ nav button {
     color: white;
     border-radius: 25px;
     cursor: pointer;
-    font-size: 14px;
 }
 
 nav button:hover {
@@ -76,7 +73,7 @@ section {
     background: white;
     padding: 25px;
     border-radius: 10px;
-    max-width: 900px;
+    max-width: 950px;
     margin: auto;
     box-shadow: 0 4px 12px rgba(0,0,0,.08);
 }
@@ -85,6 +82,11 @@ section.active {
     display: block;
 }
 
+h2 {
+    margin-top: 0;
+}
+
+/* ===== FORM ===== */
 label {
     display: block;
     margin-top: 12px;
@@ -95,12 +97,6 @@ input, textarea {
     width: 100%;
     padding: 8px;
     margin-top: 5px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-}
-
-textarea {
-    resize: vertical;
 }
 
 button.action {
@@ -113,22 +109,24 @@ button.action {
     cursor: pointer;
 }
 
-button.action:hover {
-    background: #155fa0;
-}
-
-/* ===== HISTÓRICO ===== */
-.hist-bloco {
+/* ===== FICHÁRIO ===== */
+.ficha {
     background: #f7f9fc;
+    border-left: 5px solid #1e90ff;
     padding: 15px;
-    border-radius: 8px;
+    border-radius: 6px;
     margin-bottom: 15px;
 }
 
-.hist-bloco img {
+.ficha h4 {
+    margin: 0 0 10px 0;
+    color: #1e90ff;
+}
+
+.ficha img {
     max-width: 120px;
-    border-radius: 6px;
     margin: 5px;
+    border-radius: 6px;
 }
 </style>
 </head>
@@ -136,7 +134,7 @@ button.action:hover {
 <body>
 
 <header>
-    <img src="img/dra_mairavilela.jpg" alt="Dra. Maíra Vilela">
+    img/dra_mairavilela.jpg
     <div>
         <h1>Dra. Maíra Vilela</h1>
         <p>Cirurgiã Vascular</p>
@@ -147,28 +145,37 @@ button.action:hover {
 
 <nav>
     <button onclick="mostrar('agenda')">Agenda</button>
-    <button onclick="mostrar('prontuario')">Prontuários</button>
+    <button onclick="mostrar('loginProntuario')">Prontuários</button>
 </nav>
 
 <main>
 
-<!-- ✅ AGENDA AGORA APARECE POR PADRÃO -->
+<!-- ✅ AGENDA -->
 <section id="agenda" class="active">
-    <h2>Agenda</h2>
+    <h2>📅 Agenda – Dra. Maíra Vilela</h2>
 
     <label>Senha da Agenda</label>
     <input type="password" id="senhaAgenda">
-
     <button class="action" onclick="acessarAgenda()">Entrar</button>
 </section>
 
+<!-- ✅ LOGIN PRONTUÁRIO -->
+<section id="loginProntuario">
+    <h2>🔐 Acesso ao Prontuário</h2>
+
+    <label>Senha do Prontuário</label>
+    <input type="password" id="senhaProntuario">
+    <button class="action" onclick="liberarProntuario()">Entrar</button>
+</section>
+
+<!-- ✅ PRONTUÁRIO -->
 <section id="prontuario">
-    <h2>Prontuário do Paciente</h2>
+    <h2>📁 Prontuário do Paciente</h2>
 
     <label>ID do Paciente</label>
     <input id="idPaciente">
 
-    <label>Nome do Paciente</label>
+    <label>Nome</label>
     <input id="nomePaciente">
 
     <label>Telefone 1</label>
@@ -194,10 +201,10 @@ button.action:hover {
     <label>Fotos</label>
     <input type="file" id="fotos" multiple>
 
-    <button class="action" onclick="salvarProntuario()">Salvar</button>
+    <button class="action" onclick="salvarProntuario()">Salvar Prontuário</button>
 
     <hr>
-    <h3>Histórico</h3>
+    <h3>📚 Fichário (por data)</h3>
     <div id="historico"></div>
 </section>
 
@@ -205,6 +212,7 @@ button.action:hover {
 
 <script>
 const SENHA_AGENDA = "agenda123";
+const SENHA_PRONTUARIO = "prontuario123";
 
 function mostrar(id) {
     document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
@@ -213,85 +221,18 @@ function mostrar(id) {
 
 function acessarAgenda() {
     if (senhaAgenda.value === SENHA_AGENDA) {
-        alert("Agenda liberada (protótipo).");
+        alert("Agenda liberada.");
     } else {
-        alert("Senha incorreta.");
+        alert("Senha da agenda incorreta.");
     }
 }
 
-function salvarProntuario() {
-    const id = idPaciente.value.trim();
-    if (!id) {
-        alert("Informe o ID do paciente.");
-        return;
-    }
-
-    let pacientes = JSON.parse(localStorage.getItem("pacientes")) || {};
-
-    if (!pacientes[id]) {
-        pacientes[id] = {
-            nome: nomePaciente.value,
-            telefone1: telefone1.value,
-            telefone2: telefone2.value,
-            historico: []
-        };
-    }
-
-    let fotosBase64 = [];
-    const arquivos = fotos.files;
-
-    if (arquivos.length === 0) finalizar([]);
-
-    let lidos = 0;
-    for (let file of arquivos) {
-        const reader = new FileReader();
-        reader.onload = e => {
-            fotosBase64.push(e.target.result);
-            lidos++;
-            if (lidos === arquivos.length) finalizar(fotosBase64);
-        };
-        reader.readAsDataURL(file);
-    }
-
-    function finalizar(fotos) {
-        pacientes[id].historico.push({
-            data: dataRegistro.value,
-            sintomas: sintomas.value,
-            diagnostico: diagnostico.value,
-            tratamento: tratamento.value,
-            fotos
-        });
-        localStorage.setItem("pacientes", JSON.stringify(pacientes));
+function liberarProntuario() {
+    if (senhaProntuario.value === SENHA_PRONTUARIO) {
+        mostrar("prontuario");
         carregarHistorico();
-        alert("Prontuário salvo.");
+    } else {
+        alert("Senha do prontuário incorreta.");
     }
 }
 
-function carregarHistorico() {
-    let pacientes = JSON.parse(localStorage.getItem("pacientes")) || {};
-    let div = document.getElementById("historico");
-    div.innerHTML = "";
-    const id = idPaciente.value;
-    if (!pacientes[id]) return;
-
-    pacientes[id].historico.forEach(reg => {
-        let bloco = document.createElement("div");
-        bloco.className = "hist-bloco";
-        bloco.innerHTML = `
-            <strong>Data:</strong> ${reg.data}<br>
-            <strong>Sintomas:</strong> ${reg.sintomas}<br>
-            <strong>Diagnóstico:</strong> ${reg.diagnostico}<br>
-            <strong>Tratamento:</strong> ${reg.tratamento}<br>
-        `;
-        reg.fotos.forEach(f => {
-            let img = document.createElement("img");
-            img.src = f;
-            bloco.appendChild(img);
-        });
-        div.appendChild(bloco);
-    });
-}
-</script>
-
-</body>
-</html>
