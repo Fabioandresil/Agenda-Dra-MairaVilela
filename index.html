@@ -11,6 +11,7 @@ body {
     background: #eef2f7;
 }
 
+/* HEADER */
 header {
     background: linear-gradient(135deg,#1e90ff,#1c5fa8);
     color: white;
@@ -28,6 +29,7 @@ header img {
     object-fit: cover;
 }
 
+/* NAV */
 nav {
     background: white;
     padding: 15px;
@@ -46,6 +48,7 @@ nav button {
     color: white;
 }
 
+/* SEÇÕES */
 section {
     max-width: 1100px;
     margin: 30px auto;
@@ -59,6 +62,7 @@ section.active {
     display: block;
 }
 
+/* CALENDÁRIO */
 #calendar {
     display: grid;
     grid-template-columns: 80px repeat(14, 1fr);
@@ -85,14 +89,16 @@ section.active {
     font-weight: bold;
 }
 
-.disponivel { background: #e8f5e9; }
+.disponivel {
+    background: #e8f5e9;
+}
 </style>
 </head>
 
 <body>
 
 <header>
-    <img src="img/dra_mairavilela.jpg" alt="Dra. Maíra Vilela">
+    img/dra_mairavilela.jpg
     <div>
         <h1>Dra. Maíra Vilela</h1>
         <p>Cirurgiã Vascular – Brasília</p>
@@ -100,13 +106,12 @@ section.active {
     </div>
 </header>
 
-
 <nav>
-    <button onclick="abrirLoginAgenda()">Agenda</button>
-    <button onclick="abrirLoginProntuario()">Prontuários</button>
+    <button onclick="abrirAgendaLogin()">Agenda</button>
+    <button onclick="abrirProntuarioLogin()">Prontuários</button>
 </nav>
 
-
+<!-- LOGIN AGENDA -->
 <section id="agendaLogin" class="active">
     <h2>Agenda – Acesso</h2>
     <label>Senha:</label><br>
@@ -114,34 +119,45 @@ section.active {
     <button onclick="entrarAgenda()">Entrar</button>
 </section>
 
+<!-- AGENDA -->
 <section id="agenda">
     <h2>Agenda – Próximas 2 semanas</h2>
     <div id="calendar"></div>
 </section>
 
+<!-- LOGIN PRONTUÁRIO -->
 <section id="prontuarioLogin">
-    <h2>Prontuários - Acesso</h2>
+    <h2>Prontuários – Acesso</h2>
     <label>Senha:</label><br>
     <input type="password" id="senhaProntuario"><br><br>
     <button onclick="entrarProntuario()">Entrar</button>
 </section>
 
+<!-- PRONTUÁRIO (placeholder) -->
+<section id="prontuario">
+    <h2>Prontuário do Paciente</h2>
+    <p>✔️ Acesso ao prontuário liberado.</p>
+    <p>(Campos completos entram no próximo passo)</p>
+</section>
 
 <script>
+/* SENHAS */
 const SENHA_AGENDA = "agenda123";
+const SENHA_PRONTUARIO = "prontuario123";
 
-function abrirLoginAgenda(){
-    mostrar("agendaLogin");
-}
-
+/* CONTROLE DE TELAS */
 function mostrar(id){
     document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
     document.getElementById(id).classList.add("active");
 }
 
+/* AGENDA */
+function abrirAgendaLogin(){
+    mostrar("agendaLogin");
+}
+
 function entrarAgenda(){
-    const senha = document.getElementById("senhaAgenda").value;
-    if (senha === SENHA_AGENDA) {
+    if (senhaAgenda.value === SENHA_AGENDA) {
         mostrar("agenda");
         gerarAgenda();
     } else {
@@ -149,6 +165,20 @@ function entrarAgenda(){
     }
 }
 
+/* PRONTUÁRIO */
+function abrirProntuarioLogin(){
+    mostrar("prontuarioLogin");
+}
+
+function entrarProntuario(){
+    if (senhaProntuario.value === SENHA_PRONTUARIO) {
+        mostrar("prontuario");
+    } else {
+        alert("Senha incorreta");
+    }
+}
+
+/* CALENDÁRIO */
 function gerarAgenda(){
     const calendar = document.getElementById("calendar");
     calendar.innerHTML = "";
@@ -156,49 +186,33 @@ function gerarAgenda(){
     const hoje = new Date();
     const dias = [];
 
-    for(let i=0;i<14;i++){
+    for (let i = 0; i < 14; i++) {
         const d = new Date(hoje);
-        d.setDate(d.getDate()+i);
+        d.setDate(d.getDate() + i);
         dias.push(d);
     }
 
     calendar.appendChild(document.createElement("div"));
 
-    dias.forEach(d=>{
+    dias.forEach(d => {
         const h = document.createElement("div");
         h.className = "cell header";
         h.innerText = d.toLocaleDateString("pt-BR",{weekday:"short",day:"2-digit",month:"2-digit"});
         calendar.appendChild(h);
     });
 
-    for(let h=8;h<=18;h++){
+    for (let h = 8; h <= 18; h++) {
         const hora = document.createElement("div");
         hora.className = "cell hora";
-        hora.innerText = h+":00";
+        hora.innerText = h + ":00";
         calendar.appendChild(hora);
 
-        dias.forEach(()=>{
+        dias.forEach(() => {
             const c = document.createElement("div");
             c.className = "cell disponivel";
             calendar.appendChild(c);
         });
     }
-    
-const SENHA_PRONTUARIO = "prontuario123";
-
-function abrirLoginProntuario(){
-    mostrar("prontuarioLogin");
-}
-
-function entrarProntuario(){
-    const senha = document.getElementById("senhaProntuario").value;
-    if (senha === SENHA_PRONTUARIO) {
-        alert("Prontuário liberado (próximo passo será a tela completa)");
-    } else {
-        alert("Senha incorreta");
-    }
-}
-
 }
 </script>
 
