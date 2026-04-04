@@ -3,154 +3,316 @@
 <head>
 <meta charset="UTF-8">
 <title>Agenda Médica – Dra. Maíra Vilela</title>
+
 <style>
+/* RESET BÁSICO */
 body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
-    background: #f5f7fa;
-}
-h1, h2 {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f2f6fa;
     color: #2c3e50;
 }
-form {
-    background: #fff;
-    padding: 20px;
-    border-radius: 6px;
-    margin-bottom: 30px;
-}
-label {
-    display: block;
-    margin-top: 10px;
-}
-input, select, textarea {
-    width: 100%;
-    padding: 8px;
-}
-button {
-    margin-top: 15px;
-    padding: 10px;
-    background: #2980b9;
+
+/* HEADER */
+header {
+    background: linear-gradient(135deg, #1e90ff, #1c5fa8);
     color: white;
-    border: none;
-    cursor: pointer;
+    padding: 30px;
+    display: flex;
+    align-items: center;
+    gap: 25px;
 }
-button:hover {
-    background: #1f6391;
+
+header img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid white;
+    background: white;
 }
-.card {
+
+header h1 {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: .5px;
+}
+
+header p {
+    margin: 4px 0;
+    font-size: 14px;
+}
+
+/* MENU */
+nav {
     background: white;
     padding: 15px;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,.1);
+}
+
+nav button {
+    padding: 10px 22px;
+    border: none;
+    background: #1e90ff;
+    color: white;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+nav button:hover {
+    background: #155fa0;
+}
+
+/* CONTEÚDO */
+main {
+    padding: 30px;
+}
+
+section {
+    display: none;
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    max-width: 900px;
+    margin: auto;
+    box-shadow: 0 4px 12px rgba(0,0,0,.08);
+}
+
+section.active {
+    display: block;
+}
+
+h2, h3 {
+    margin-top: 0;
+}
+
+label {
+    display: block;
+    margin-top: 12px;
+    font-weight: 500;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+textarea {
+    resize: vertical;
+}
+
+button.action {
+    margin-top: 20px;
+    padding: 10px 18px;
+    border: none;
+    background: #1e90ff;
+    color: white;
     border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+button.action:hover {
+    background: #155fa0;
+}
+
+/* HISTÓRICO */
+.hist-bloco {
+    background: #f7f9fc;
+    padding: 15px;
+    border-radius: 8px;
     margin-bottom: 15px;
+}
+
+.hist-bloco img {
+    max-width: 120px;
+    border-radius: 6px;
+    margin: 5px 5px 0 0;
 }
 </style>
 </head>
 
 <body>
 
-<h1>Agenda Médica – Dra. Maíra Vilela</h1>
-<p>Contato: (61) 98589-5499 | Brasília – DF</p>
+<header>
+    img/dra-maira-vilela.jpg
+    <div>
+        <h1>Dra. Maíra Vilela</h1>
+        <p>Cirurgiã Vascular</p>
+        <p>Brasília – DF</p>
+        <p>📞 (61) 98589‑5499</p>
+    </div>
+</header>
 
-<form id="formPaciente">
-<h2>Cadastro de Paciente / Sessão</h2>
+<nav>
+    <button onclick="mostrar('agenda')">Agenda</button>
+    <button onclick="mostrar('prontuario')">Prontuários</button>
+</nav>
 
-<label>ID do Paciente</label>
-<input required>
+<main>
 
-<label>Sintomas</label>
-<textarea></textarea>
+<!-- AGENDA -->
+<section id="agenda">
+    <h2>Acesso à Agenda</h2>
+    <label>Senha da Agenda</label>
+    <input type="password" id="senhaAgenda">
+    <button class="action" onclick="acessarAgenda()">Entrar</button>
+</section>
 
-<label>Diagnóstico</label>
-<textarea></textarea>
+<!-- PRONTUÁRIO -->
+<section id="prontuario">
+    <h2>Prontuário do Paciente</h2>
 
-<label>Tratamento Indicado</label>
-<input>
+    <label>ID do Paciente</label>
+    <input id="idPaciente">
 
-<label>Nº de Sessões</label>
-<input type="number">
+    <label>Nome do Paciente</label>
+    <input id="nomePaciente">
 
-<label>Datas das Sessões</label>
-<input type="date">
+    <label>Telefone 1</label>
+    <input id="telefone1">
 
-<label>Local de Atendimento</label>
-<select>
-    <option>Clínica Life</option>
-    <option>Outra Clínica</option>
-    <option>Cirurgia em Hospital</option>
-</select>
+    <label>Telefone 2</label>
+    <input id="telefone2">
 
-<button type="submit">Salvar</button>
-</form>
+    <hr>
 
-<form id="formCirurgia">
-<h2>Cadastro de Cirurgia</h2>
+    <h3>Novo Registro</h3>
 
-<label>Hospital</label>
-<input>
+    <label>Data</label>
+    <input type="date" id="dataRegistro">
 
-<label>Médico Principal</label>
-<input>
+    <label>Sintomas</label>
+    <textarea id="sintomas"></textarea>
 
-<label>Médico Assistente</label>
-<input>
+    <label>Diagnóstico</label>
+    <textarea id="diagnostico"></textarea>
 
-<label>Data da Cirurgia</label>
-<input type="date">
+    <label>Tratamento</label>
+    <textarea id="tratamento"></textarea>
 
-<label>Plano de Saúde</label>
-<input>
+    <label>Fotos do Prontuário</label>
+    <input type="file" id="fotos" multiple>
 
-<label>Valor à vista (PIX)</label>
-<input type="number" id="valorPix">
+    <button class="action" onclick="salvarProntuario()">Salvar Prontuário</button>
 
-<label>Forma de Pagamento</label>
-<select id="pagamento">
-<option value="pix">À vista PIX</option>
-<option value="3x">Cartão 3x (+3%)</option>
-<option value="6x">Cartão 6x (+5%)</option>
-<option value="10x">Cartão 10x (+10%)</option>
-</select>
+    <hr>
 
-<label>Pagamento</label>
-<select>
-<option>Pendente</option>
-<option>Pago</option>
-</select>
+    <h3>Histórico</h3>
+    <div id="historico"></div>
+</section>
 
-<button type="button" onclick="calcularPagamento()">Calcular Parcelas</button>
-<p id="resultado"></p>
-
-</form>
+</main>
 
 <script>
-function calcularPagamento() {
-    let pix = parseFloat(document.getElementById("valorPix").value);
-    let metodo = document.getElementById("pagamento").value;
-    let total = pix;
-    let parcelas = 1;
+/* SENHAS DO PROTÓTIPO */
+const SENHA_AGENDA = "agenda123";
 
-    if (metodo === "3x") {
-        total = pix * 1.03;
-        parcelas = 3;
-    } else if (metodo === "6x") {
-        total = pix * 1.05;
-        parcelas = 6;
-    } else if (metodo === "10x") {
-        total = pix * 1.10;
-        parcelas = 10;
-    }
-
-    let valorParcela = total / parcelas;
-
-    document.getElementById("resultado").innerHTML =
-        `Total: R$ ${total.toFixed(2)} <br>
-         Parcelas: ${parcelas} x R$ ${valorParcela.toFixed(2)}`;
+/* CONTROLE DE TELAS */
+function mostrar(id) {
+    document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
 }
 
-// Lembrete 2 dias antes (simulado)
-setInterval(() => {
-    alert("Lembrete: verificar sessões/cirurgias agendadas para os próximos 2 dias.");
-}, 86400000);
+/* AGENDA */
+function acessarAgenda() {
+    if (senhaAgenda.value === SENHA_AGENDA) {
+        alert("Agenda liberada (protótipo).");
+    } else {
+        alert("Senha incorreta.");
+    }
+}
+
+/* PRONTUÁRIO COM HISTÓRICO */
+function salvarProntuario() {
+    const id = idPaciente.value.trim();
+    if (!id) {
+        alert("Informe o ID do paciente.");
+        return;
+    }
+
+    let pacientes = JSON.parse(localStorage.getItem("pacientes")) || {};
+
+    if (!pacientes[id]) {
+        pacientes[id] = {
+            nome: nomePaciente.value,
+            telefone1: telefone1.value,
+            telefone2: telefone2.value,
+            historico: []
+        };
+    }
+
+    const fotosSelecionadas = fotos.files;
+    let fotosBase64 = [];
+    let carregadas = 0;
+
+    if (fotosSelecionadas.length === 0) {
+        finalizar([]);
+        return;
+    }
+
+    for (let file of fotosSelecionadas) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            fotosBase64.push(e.target.result);
+            carregadas++;
+            if (carregadas === fotosSelecionadas.length) {
+                finalizar(fotosBase64);
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function finalizar(fotos) {
+        pacientes[id].historico.push({
+            data: dataRegistro.value,
+            sintomas: sintomas.value,
+            diagnostico: diagnostico.value,
+            tratamento: tratamento.value,
+            fotos: fotos
+        });
+
+        localStorage.setItem("pacientes", JSON.stringify(pacientes));
+        alert("Prontuário salvo.");
+        carregarHistorico();
+    }
+}
+
+function carregarHistorico() {
+    let pacientes = JSON.parse(localStorage.getItem("pacientes")) || {};
+    const id = idPaciente.value;
+    const div = document.getElementById("historico");
+    div.innerHTML = "";
+
+    if (!pacientes[id]) return;
+
+    pacientes[id].historico.forEach(reg => {
+        let bloco = document.createElement("div");
+        bloco.className = "hist-bloco";
+        bloco.innerHTML = `
+            <strong>Data:</strong> ${reg.data}<br>
+            <strong>Sintomas:</strong> ${reg.sintomas}<br>
+            <strong>Diagnóstico:</strong> ${reg.diagnostico}<br>
+            <strong>Tratamento:</strong> ${reg.tratamento}<br>
+        `;
+
+        reg.fotos.forEach(f => {
+            let img = document.createElement("img");
+            img.src = f;
+            bloco.appendChild(img);
+        });
+
+        div.appendChild(bloco);
+    });
+}
 </script>
 
 </body>
