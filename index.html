@@ -136,10 +136,99 @@ section.active {
 
 <!-- PRONTUÁRIO (placeholder) -->
 <section id="prontuario">
-    <h2>Prontuário do Paciente</h2>
-    <p>✔️ Acesso ao prontuário liberado.</p>
-    <p>(Campos completos entram na próxima etapa)</p>
+    <h2>📁 Prontuário do Paciente</h2>
+
+    <h3>Identificação</h3>
+
+    <label>Nome do paciente</label>
+    <input id="p_nome">
+
+    <label>CPF</label>
+    <input id="p_cpf">
+
+    <label>Data de nascimento</label>
+    <input type="date" id="p_nascimento">
+
+    <label>Telefone</label>
+    <input id="p_telefone">
+
+    <label>Peso (kg)</label>
+    <input id="p_peso">
+
+    <label>Altura (cm)</label>
+    <input id="p_altura">
+
+    <label>Tipo sanguíneo</label>
+    <input id="p_sangue">
+
+    <label>Doenças pré-existentes</label>
+    <textarea id="p_doencas"></textarea>
+
+    <hr>
+
+    <h3>Novo Atendimento</h3>
+
+    <label>Data de atendimento</label>
+    <input type="date" id="a_data">
+
+    <label>Tipo de atendimento</label>
+    <select id="a_tipo" onchange="toggleCirurgia()">
+        <option value="consulta">Consulta</option>
+        <option value="sessao">Sessão</option>
+        <option value="cirurgia">Cirurgia</option>
+    </select>
+
+    <label>Evolução / Observações</label>
+    <textarea id="a_obs"></textarea>
+
+    <label>Data de retorno</label>
+    <input type="date" id="a_retorno">
+
+    <!-- CAMPOS DE CIRURGIA -->
+    <div id="cirurgiaCampos" style="display:none">
+
+        <h4>Informações da Cirurgia</h4>
+
+        <label>Hospital</label>
+        <input id="c_hospital">
+
+        <label>Médico principal</label>
+        <input id="c_principal">
+
+        <label>Médico assistente</label>
+        <input id="c_assistente">
+
+        <label>Plano de saúde</label>
+        <input id="c_plano">
+
+        <label>Valor (PIX)</label>
+        <input type="number" id="c_valor">
+
+        <label>Forma de pagamento</label>
+        <select id="c_pagamento" onchange="calcularPagamento()">
+            <option value="pix">PIX</option>
+            <option value="3x">Cartão 3x (+3%)</option>
+            <option value="6x">Cartão 6x (+5%)</option>
+            <option value="10x">Cartão 10x (+10%)</option>
+        </select>
+
+        <p id="resultadoPagamento"></p>
+
+        <label>Status do pagamento</label>
+        <select id="c_pago">
+            <option value="nao">Não pago</option>
+            <option value="sim">Pago</option>
+        </select>
+    </div>
+
+    <button onclick="salvarProntuario()">Salvar Atendimento</button>
+
+    <hr>
+
+    <h3>📚 Histórico</h3>
+    <div id="historico"></div>
 </section>
+``
 
 <script>
 const SENHA_AGENDA = "agenda123";
@@ -209,6 +298,69 @@ function gerarAgenda(){
             calendar.appendChild(c);
         });
     }
+function toggleCirurgia() {
+    cirurgiaCampos.style.display =
+        a_tipo.value === "cirurgia" ? "block" : "none";
+}
+
+function calcularPagamento() {
+    const valor = parseFloat(c_valor.value || 0);
+    let fator = 1, parcelas = 1;
+
+    if (c_pagamento.value === "3x") { fator = 1.03; parcelas = 3; }
+    if (c_pagamento.value === "6x") { fator = 1.05; parcelas = 6; }
+    if (c_pagamento.value === "10x") { fator = 1.10; parcelas = 10; }
+
+    const total = (valor * fator).toFixed(2);
+    const parcela = (total / parcelas).toFixed(2);
+
+    resultadoPagamento.innerText =
+        `Total: R$ ${total} | ${parcelas}x de R$ ${parcela}`;
+}
+
+function salvarProntuario() {
+    const cpf = p_cpf.value.replace(/\D/g,"");
+    if (!cpf) return alert("Informe o CPF");
+
+    const id = "paciente_" + cpf;
+    let dados = JSON.parse(localStorage.getItem(id) || "[]");
+
+    dados.push({
+        data: a_data.value,
+        tipo: a_tipo.value,
+        obs: a_obs.value,
+        retorno: a_retorno.value,
+        cirurgia: a_tipo.value === "cirurgia" ? {
+            hospital: c_hospital.value,
+            principal: c_principal.value,
+            assistente: c_assistente.value,
+            plano: c_plano.value,
+            valor: c_valor.value,
+            pagamento: c_pagamento.value,
+            pago: c_pago.value
+        } : null
+    });
+
+    dados.sort((a,b)=>b.data.localeCompare(a.data));
+    localStorage.setItem(id, JSON.stringify(dados));
+    renderHistorico(id);
+}
+
+function renderHistorico(id) {
+    const dados = JSON.parse(localStorage.getItem(id) || "[]");
+    historico.innerHTML = "";
+
+    dados.forEach(d => {
+        historico.innerHTML += `
+            <div class="cell" style="margin-bottom:10px">
+                <b>${d.data}</b> — ${d.tipo}<br>
+                ${d.obs}<br>
+                Retorno: ${d.retorno || "-"}
+            </div>
+        `;
+    });
+}
+
 }
 </script>
 
