@@ -36,376 +36,46 @@ nav{
 }
 nav button{
     padding:10px 20px;
-    background:#1e90ff;color:white;border:none;
-    border-radius:20px;cursor:pointer;
+    background:#1e90ff;
+    color:white;
+    border:none;
+    border-radius:20px;
+    cursor:pointer;
 }
 
-main{padding:30px}
-
 /* SEÇÕES */
+main{padding:30px}
 section{
     display:none;
     background:white;
     padding:25px;
-    max-width:950px;
+    max-width:1100px;
     margin:auto;
     border-radius:10px;
     box-shadow:0 4px 10px rgba(0,0,0,.08)
 }
 section.active{display:block}
 
-label{display:block;margin-top:10px}
-input,textarea{width:100%;padding:8px}
-button.action{
-    margin-top:15px;
-    padding:10px;
-    background:#1e90ff;
-    border:none;color:white;border-radius:6px
+/* CALENDÁRIO */
+#calendar{
+    display:grid;
+    grid-template-columns:80px repeat(14,1fr);
+    gap:1px;
+    background:#ccc;
+    margin-top:20px;
+    font-size:12px;
 }
-.ficha{
-    background:#f7f9fc;
-    border-left:5px solid #1e90ff;
-    padding:12px;margin-top:10px;
-    border-radius:6px
+.cell{
+    background:#fff;
+    padding:4px;
+    height:40px;
+    text-align:center;
+    cursor:pointer;
 }
-.ficha button{margin-top:10px}
-</style>
-</head>
-
-<body>
-
-<header>
-    <img src="img/dra_mairavilela.jpg">
-    <div>
-        <h1>Dra. Maíra Vilela</h1>
-        <p>Cirurgiã Vascular – Brasília</p>
-        <p>(61) 98589‑5499</p>
-    </div>
-</header>
-
-<nav>
-    <button onclick="mostrar('agendaLogin')">Agenda</button>
-    <button onclick="mostrar('prontuarioLogin')">Prontuários</button>
-</nav>
-
-<main>
-
-<!-- LOGIN AGENDA -->
-
-<section id="agenda">
-  <h2>📅 Agenda – Próximas 2 semanas</h2>
-
-  <div id="calendar"></div>
-
-  <!-- MODAL DE EDIÇÃO -->
-  <div id="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.4);">
-    <div style="background:#fff; max-width:400px; margin:10% auto; padding:20px; border-radius:8px;">
-      <h3>Editar Horário</h3>
-
-      <label>Data</label>
-      <input id="editDate" disabled>
-
-      <label>Hora</label>
-      <input id="editHour" disabled>
-
-      <label>Status</label>
-      <select id="editStatus">
-        <option value="disponivel">Disponível</option>
-        <option value="consulta">Consulta</option>
-        <option value="sessao">Sessão</option>
-        <option value="cirurgia">Cirurgia</option>
-      </select>
-
-      <label>Local</label>
-      <select id="editLocal">
-        <option value="">—</option>
-        <option>Clínica Life</option>
-        <option>Outra clínica</option>
-        <option>Hospital (Cirurgia)</option>
-      </select>
-
-      <div style="margin-top:15px; text-align:right">
-        <button onclick="salvarSlot()">Salvar</button>
-        <button onclick="fecharModal()">Cancelar</button>
-      </div>
-    </div>
-  </div>
-
-  <style>
-    #calendar {
-      display:grid;
-      grid-template-columns:80px repeat(14,1fr);
-      gap:1px;
-      background:#ccc;
-      margin-top:20px;
-      font-size:12px;
-    }
-    .cell {
-      background:#fff;
-      padding:4px;
-      height:40px;
-      cursor:pointer;
-      text-align:center;
-    }
-    .hora {
-      font-weight:bold;
-      background:#f0f0f0;
-      cursor:default;
-    }
-    .disponivel { background:#e8f5e9; }
-    .consulta { background:#bbdefb; }
-    .sessao { background:#dcedc8; }
-    .cirurgia { background:#ffcdd2; }
-    .header { background:#eee; font-weight:bold; }
-  </style>
-</section>
-
-<!-- AGENDA -->
-<section id="agenda">
-<h2>📅 Agenda</h2>
-
-<label>CPF do Paciente</label>
-<input id="cpfAgenda">
-
-<label>Data do Atendimento</label>
-<input type="date" id="dataAgenda">
-
-<label>Horário</label>
-<input type="time">
-
-<label>Agendamentos Futuros</label>
-<input type="date" id="agendaFutura">
-
-<button class="action" onclick="salvarAgenda()">Salvar Agenda</button>
-
-<div id="agendaLista"></div>
-</section>
-
-<!-- LOGIN PRONTUÁRIO -->
-<section id="prontuarioLogin">
-<h2>🔐 Acesso ao Prontuário</h2>
-<label>Senha do Prontuário</label>
-<input type="password" id="senhaProntuario">
-<button class="action" onclick="liberarProntuario()">Entrar</button>
-</section>
-
-<!-- PRONTUÁRIO -->
-<section id="prontuario">
-<h2>📁 Prontuário</h2>
-
-<label>Nome do Paciente</label>
-<input id="nomePaciente">
-
-<label>CPF</label>
-<input id="cpfPaciente">
-
-<label>Data de Nascimento</label>
-<input type="date" id="dataNascimento">
-
-<label>Peso (kg)</label>
-<input id="peso">
-
-<label>Altura (cm)</label>
-<input id="altura">
-
-<label>Tipo Sanguíneo</label>
-<input id="tipoSangue">
-
-<label>Doenças Pré‑existentes</label>
-<textarea id="doencas"></textarea>
-
-<hr>
-
-<label>Data de Atendimento</label>
-<input type="date" id="dataAtendimento">
-
-<label>Data de Retorno</label>
-<input type="date" id="dataRetorno">
-
-<label>Sintomas</label>
-<textarea id="sintomas"></textarea>
-
-<label>Diagnóstico</label>
-<textarea id="diagnostico"></textarea>
-
-<label>Tratamento</label>
-<textarea id="tratamento"></textarea>
-
-<button class="action" onclick="salvarProntuario()">Salvar Prontuário</button>
-
-<h3>📚 Histórico</h3>
-<div id="historico"></div>
-</section>
-
-</main>
-
-<script>
-const SENHA_AGENDA="agenda123",SENHA_PRONTUARIO="prontuario123";
-
-function mostrar(id){
-document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
-document.getElementById(id).classList.add("active");
+.hora{
+    font-weight:bold;
+    background:#f0f0f0;
+    cursor:default;
 }
-
-function liberarAgenda(){
-  if(senhaAgenda.value === SENHA_AGENDA){
-    mostrar("agenda");
-    setTimeout(() => {
-      if (typeof gerarAgenda === "function") {
-        gerarAgenda();
-      }
-    }, 0);
-  } else {
-    alert("Senha incorreta");
-  }
-}
-
-function liberarProntuario(){
-if(senhaProntuario.value===SENHA_PRONTUARIO)mostrar("prontuario");else alert("Senha incorreta");
-}
-
-function salvarAgenda(){
-const cpf=cpfAgenda.value.replace(/\D/g,"");
-let lista=JSON.parse(localStorage.getItem("agenda")||"[]");
-lista.push({cpf,data:dataAgenda.value,retorno:agendaFutura.value});
-localStorage.setItem("agenda",JSON.stringify(lista));
-carregarAgenda();
-}
-
-function carregarAgenda(){
-let lista=JSON.parse(localStorage.getItem("agenda")||"[]");
-agendaLista.innerHTML="";
-lista.forEach(a=>{
-agendaLista.innerHTML+=`<div class="ficha">
-<b>CPF:</b> ${a.cpf}<br>
-<b>Data:</b> ${a.data}<br>
-<b>Retorno:</b> ${a.retorno}
-</div>`;
-});
-}
-
-function salvarProntuario(){
-const cpf=cpfPaciente.value.replace(/\D/g,"");
-const id="paciente_"+cpf;
-let dados=JSON.parse(localStorage.getItem(id)||"[]");
-
-dados.push({
-data:dataAtendimento.value,
-retorno:dataRetorno.value,
-sintomas:sintomas.value,
-diagnostico:diagnostico.value,
-tratamento:tratamento.value
-});
-
-dados.sort((a,b)=>b.data.localeCompare(a.data));
-localStorage.setItem(id,JSON.stringify(dados));
-
-let pacientes=JSON.parse(localStorage.getItem("pacientes")||"{}");
-pacientes[id]={nome:nomePaciente.value,nasc:dataNascimento.value,peso,altura,tipoSangue,doencas};
-localStorage.setItem("pacientes",JSON.stringify(pacientes));
-
-carregarHistorico(id);
-}
-
-function carregarHistorico(id){
-let dados=JSON.parse(localStorage.getItem(id)||"[]");
-historico.innerHTML="";
-dados.forEach((r,i)=>{
-historico.innerHTML+=`<div class="ficha">
-<b>Atendimento:</b> ${r.data}<br>
-<b>Retorno:</b> ${r.retorno}<br>
-<b>Sintomas:</b> ${r.sintomas}<br>
-<b>Diagnóstico:</b> ${r.diagnostico}<br>
-<b>Tratamento:</b> ${r.tratamento}<br>
-<button onclick="editar(${i},'${id}')">Editar</button>
-</div>`;
-});
-}
-
-function editar(i,id){
-let dados=JSON.parse(localStorage.getItem(id));
-let r=dados[i];
-dataAtendimento.value=r.data;
-dataRetorno.value=r.retorno;
-sintomas.value=r.sintomas;
-diagnostico.value=r.diagnostico;
-tratamento.value=r.tratamento;
-}
-const calendarEl = document.getElementById("calendar");
-const modal = document.getElementById("modal");
-let currentKey = null;
-
-function gerarDatas() {
-  const dias = [];
-  const hoje = new Date();
-  for (let i=0;i<14;i++) {
-    const d = new Date(hoje);
-    d.setDate(d.getDate()+i);
-    dias.push(d);
-  }
-  return dias;
-}
-
-function gerarAgenda() {
-  const dias = gerarDatas();
-  calendarEl.innerHTML = "";
-
-  calendarEl.appendChild(document.createElement("div"));
-
-  dias.forEach(d=>{
-    const h = document.createElement("div");
-    h.className="cell header";
-    h.innerText = d.toLocaleDateString("pt-BR",{weekday:"short",day:"2-digit",month:"2-digit"});
-    calendarEl.appendChild(h);
-  });
-
-  for (let h=8; h<=18; h++) {
-    const hora = document.createElement("div");
-    hora.className="cell hora";
-    hora.innerText = `${h}:00`;
-    calendarEl.appendChild(hora);
-
-    dias.forEach(d=>{
-      const key = d.toISOString().slice(0,10)+"_"+h;
-      const data = JSON.parse(localStorage.getItem("agendaSlots")||"{}")[key];
-
-      const c = document.createElement("div");
-      c.className = "cell "+(data?.status || "disponivel");
-      c.innerText = data?.local || "";
-      c.onclick = ()=>abrirModal(d,h,key);
-      calendarEl.appendChild(c);
-    });
-  }
-}
-
-function abrirModal(date,hour,key) {
-  currentKey = key;
-  editDate.value = date.toLocaleDateString("pt-BR");
-  editHour.value = `${hour}:00`;
-
-  const dados = JSON.parse(localStorage.getItem("agendaSlots")||"{}")[key] || {};
-  editStatus.value = dados.status || "disponivel";
-  editLocal.value = dados.local || "";
-  modal.style.display="block";
-}
-
-function fecharModal() {
-  modal.style.display="none";
-}
-
-function salvarSlot() {
-  const agenda = JSON.parse(localStorage.getItem("agendaSlots")||"{}");
-  agenda[currentKey] = {
-    status: editStatus.value,
-    local: editLocal.value
-  };
-  localStorage.setItem("agendaSlots",JSON.stringify(agenda));
-  fecharModal();
-  gerarAgenda();
-}
-
-gerarAgenda();
-
-</script>
-</body>
-</html>
+.header{
+    background:#eee;
