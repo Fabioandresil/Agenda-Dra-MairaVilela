@@ -98,7 +98,8 @@ section.active {
 <body>
 
 <header>
-    img/dra_mairavilela.jpg
+    <!-- ✅ FOTO CORRIGIDA -->
+    <img src="img/dra_mairavilela.jpg" alt="Dra. Maíra Vilela">
     <div>
         <h1>Dra. Maíra Vilela</h1>
         <p>Cirurgiã Vascular – Brasília</p>
@@ -137,21 +138,18 @@ section.active {
 <section id="prontuario">
     <h2>Prontuário do Paciente</h2>
     <p>✔️ Acesso ao prontuário liberado.</p>
-    <p>(Campos completos entram no próximo passo)</p>
+    <p>(Campos completos entram na próxima etapa)</p>
 </section>
 
 <script>
-/* SENHAS */
 const SENHA_AGENDA = "agenda123";
 const SENHA_PRONTUARIO = "prontuario123";
 
-/* CONTROLE DE TELAS */
 function mostrar(id){
     document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
     document.getElementById(id).classList.add("active");
 }
 
-/* AGENDA */
 function abrirAgendaLogin(){
     mostrar("agendaLogin");
 }
@@ -165,7 +163,6 @@ function entrarAgenda(){
     }
 }
 
-/* PRONTUÁRIO */
 function abrirProntuarioLogin(){
     mostrar("prontuarioLogin");
 }
@@ -178,7 +175,6 @@ function entrarProntuario(){
     }
 }
 
-/* CALENDÁRIO */
 function gerarAgenda(){
     const calendar = document.getElementById("calendar");
     calendar.innerHTML = "";
@@ -218,3 +214,4 @@ function gerarAgenda(){
 
 </body>
 </html>
+``
