@@ -91,11 +91,73 @@ button.action{
 <main>
 
 <!-- LOGIN AGENDA -->
-<section id="agendaLogin" class="active">
-<h2>Agenda da Dra. Maíra Vilela</h2>
-<label>Senha da Agenda</label>
-<input type="password" id="senhaAgenda">
-<button class="action" onclick="liberarAgenda()">Entrar</button>
+
+<section id="agenda">
+  <h2>📅 Agenda – Próximas 2 semanas</h2>
+
+  <div id="calendar"></div>
+
+  <!-- MODAL DE EDIÇÃO -->
+  <div id="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.4);">
+    <div style="background:#fff; max-width:400px; margin:10% auto; padding:20px; border-radius:8px;">
+      <h3>Editar Horário</h3>
+
+      <label>Data</label>
+      <input id="editDate" disabled>
+
+      <label>Hora</label>
+      <input id="editHour" disabled>
+
+      <label>Status</label>
+      <select id="editStatus">
+        <option value="disponivel">Disponível</option>
+        <option value="consulta">Consulta</option>
+        <option value="sessao">Sessão</option>
+        <option value="cirurgia">Cirurgia</option>
+      </select>
+
+      <label>Local</label>
+      <select id="editLocal">
+        <option value="">—</option>
+        <option>Clínica Life</option>
+        <option>Outra clínica</option>
+        <option>Hospital (Cirurgia)</option>
+      </select>
+
+      <div style="margin-top:15px; text-align:right">
+        <button onclick="salvarSlot()">Salvar</button>
+        <button onclick="fecharModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    #calendar {
+      display:grid;
+      grid-template-columns:80px repeat(14,1fr);
+      gap:1px;
+      background:#ccc;
+      margin-top:20px;
+      font-size:12px;
+    }
+    .cell {
+      background:#fff;
+      padding:4px;
+      height:40px;
+      cursor:pointer;
+      text-align:center;
+    }
+    .hora {
+      font-weight:bold;
+      background:#f0f0f0;
+      cursor:default;
+    }
+    .disponivel { background:#e8f5e9; }
+    .consulta { background:#bbdefb; }
+    .sessao { background:#dcedc8; }
+    .cirurgia { background:#ffcdd2; }
+    .header { background:#eee; font-weight:bold; }
+  </style>
 </section>
 
 <!-- AGENDA -->
