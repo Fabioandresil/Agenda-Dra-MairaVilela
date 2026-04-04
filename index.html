@@ -12,7 +12,7 @@ body {
     color: #2c3e50;
 }
 
-/* ===== HEADER ===== */
+/* HEADER */
 header {
     background: linear-gradient(135deg, #1e90ff, #1c5fa8);
     color: white;
@@ -31,17 +31,6 @@ header img {
     background: white;
 }
 
-header h1 {
-    margin: 0;
-    font-size: 26px;
-}
-
-header p {
-    margin: 4px 0;
-    font-size: 14px;
-}
-
-/* ===== MENU ===== */
 nav {
     background: white;
     padding: 15px;
@@ -60,68 +49,38 @@ nav button {
     cursor: pointer;
 }
 
-nav button:hover {
-    background: #155fa0;
-}
-
-/* ===== CONTEÚDO ===== */
-main {
-    padding: 30px;
-}
+main { padding: 30px; }
 
 section {
     display: none;
     background: white;
     padding: 25px;
     border-radius: 10px;
-    max-width: 950px;
+    max-width: 900px;
     margin: auto;
     box-shadow: 0 4px 12px rgba(0,0,0,.08);
 }
 
-section.active {
-    display: block;
-}
+section.active { display: block; }
 
-h2 {
-    margin-top: 0;
-}
-
-/* ===== FORM ===== */
-label {
-    display: block;
-    margin-top: 12px;
-    font-weight: 500;
-}
-
-input, textarea {
-    width: 100%;
-    padding: 8px;
-    margin-top: 5px;
-}
+label { display: block; margin-top: 12px; }
+input, textarea { width: 100%; padding: 8px; }
 
 button.action {
     margin-top: 20px;
     padding: 10px 18px;
-    border: none;
     background: #1e90ff;
     color: white;
+    border: none;
     border-radius: 6px;
-    cursor: pointer;
 }
 
-/* ===== FICHÁRIO ===== */
 .ficha {
     background: #f7f9fc;
     border-left: 6px solid #1e90ff;
     padding: 15px;
     border-radius: 6px;
     margin-bottom: 15px;
-}
-
-.ficha h4 {
-    margin: 0 0 10px;
-    color: #1e90ff;
 }
 </style>
 </head>
@@ -134,41 +93,56 @@ button.action {
         <h1>Dra. Maíra Vilela</h1>
         <p>Cirurgiã Vascular</p>
         <p>Brasília – DF</p>
-        <p>📞 (61) 98589‑5499</p>
+        <p>(61) 98589‑5499</p>
     </div>
 </header>
 
 <nav>
-    <button onclick="abrirAgenda()">Agenda</button>
-    <button onclick="abrirLoginProntuario()">Prontuários</button>
+    <button onclick="mostrar('agendaLogin')">Agenda</button>
+    <button onclick="mostrar('prontuarioLogin')">Prontuários</button>
 </nav>
 
 <main>
 
-<!-- ✅ AGENDA -->
-<section id="agenda" class="active">
-    <h2>📅 Agenda da Dra. Maíra Vilela</h2>
-
+<!-- LOGIN AGENDA -->
+<section id="agendaLogin" class="active">
+    <h2>Agenda da Dra. Maíra Vilela</h2>
     <label>Senha da Agenda</label>
     <input type="password" id="senhaAgenda">
-    <button class="action" onclick="acessarAgenda()">Entrar</button>
+    <button class="action" onclick="liberarAgenda()">Entrar</button>
 </section>
 
-<!-- ✅ LOGIN PRONTUÁRIO -->
-<section id="loginProntuario">
-    <h2>🔐 Acesso aos Prontuários</h2>
+<!-- AGENDA -->
+<section id="agenda">
+    <h2>📅 Agenda</h2>
+    <label>Data</label>
+    <input type="date">
+    <label>Horário</label>
+    <input type="time">
+    <label>Local / Clínica / Hospital</label>
+    <input>
+    <label>Observações</label>
+    <textarea></textarea>
+    <button class="action">Salvar Agendamento</button>
+</section>
 
+<!-- LOGIN PRONTUÁRIO -->
+<section id="prontuarioLogin">
+    <h2>Acesso ao Prontuário</h2>
     <label>Senha do Prontuário</label>
     <input type="password" id="senhaProntuario">
     <button class="action" onclick="liberarProntuario()">Entrar</button>
 </section>
 
-<!-- ✅ PRONTUÁRIO -->
+<!-- PRONTUÁRIO -->
 <section id="prontuario">
-    <h2>📁 Prontuário do Paciente</h2>
+    <h2>Prontuário do Paciente</h2>
 
-    <label>ID do Paciente</label>
-    <input id="idPaciente">
+    <label>Nome do Paciente</label>
+    <input id="nomePaciente">
+
+    <label>CPF</label>
+    <input id="cpfPaciente">
 
     <label>Data</label>
     <input type="date" id="dataRegistro">
@@ -184,8 +158,7 @@ button.action {
 
     <button class="action" onclick="salvarProntuario()">Salvar Prontuário</button>
 
-    <hr>
-    <h3>📚 Fichário (por data)</h3>
+    <h3>Histórico do Paciente</h3>
     <div id="historico"></div>
 </section>
 
@@ -195,45 +168,33 @@ button.action {
 const SENHA_AGENDA = "agenda123";
 const SENHA_PRONTUARIO = "prontuario123";
 
-function esconderTudo() {
-    document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+function mostrar(id){
+    document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
 }
 
-function abrirAgenda() {
-    esconderTudo();
-    document.getElementById("agenda").classList.add("active");
+function liberarAgenda(){
+    if(senhaAgenda.value === SENHA_AGENDA){
+        mostrar("agenda");
+    } else alert("Senha incorreta");
 }
 
-function abrirLoginProntuario() {
-    esconderTudo();
-    document.getElementById("loginProntuario").classList.add("active");
+function liberarProntuario(){
+    if(senhaProntuario.value === SENHA_PRONTUARIO){
+        mostrar("prontuario");
+    } else alert("Senha incorreta");
 }
 
-function acessarAgenda() {
-    if (senhaAgenda.value === SENHA_AGENDA) {
-        alert("Agenda liberada.");
-    } else {
-        alert("Senha incorreta.");
-    }
-}
+function salvarProntuario(){
+    const cpf = cpfPaciente.value.replace(/\D/g,'');
+    if(!cpf) return alert("Informe o CPF");
 
-function liberarProntuario() {
-    if (senhaProntuario.value === SENHA_PRONTUARIO) {
-        esconderTudo();
-        document.getElementById("prontuario").classList.add("active");
-        carregarHistorico();
-    } else {
-        alert("Senha incorreta.");
-    }
-}
-
-function salvarProntuario() {
-    const id = idPaciente.value.trim();
-    if (!id) return alert("Informe o ID do paciente.");
-
+    const id = "paciente_"+cpf;
     let dados = JSON.parse(localStorage.getItem(id)) || [];
+
     dados.push({
         data: dataRegistro.value,
+        nome: nomePaciente.value,
         sintomas: sintomas.value,
         diagnostico: diagnostico.value,
         tratamento: tratamento.value
@@ -241,23 +202,20 @@ function salvarProntuario() {
 
     dados.sort((a,b)=>b.data.localeCompare(a.data));
     localStorage.setItem(id, JSON.stringify(dados));
-    carregarHistorico();
+    carregarHistorico(id);
 }
 
-function carregarHistorico() {
-    const id = idPaciente.value;
+function carregarHistorico(id){
     const div = document.getElementById("historico");
-    div.innerHTML = "";
-    const dados = JSON.parse(localStorage.getItem(id)) || [];
-
-    dados.forEach(r => {
-        const f = document.createElement("div");
-        f.className = "ficha";
-        f.innerHTML = `<h4>${r.data}</h4>
-                       <strong>Sintomas:</strong> ${r.sintomas}<br>
-                       <strong>Diagnóstico:</strong> ${r.diagnostico}<br>
-                       <strong>Tratamento:</strong> ${r.tratamento}`;
-        div.appendChild(f);
+    div.innerHTML="";
+    const dados = JSON.parse(localStorage.getItem(id))||[];
+    dados.forEach(r=>{
+        div.innerHTML += `<div class="ficha">
+            <strong>${r.data}</strong><br>
+            <b>Sintomas:</b> ${r.sintomas}<br>
+            <b>Diagnóstico:</b> ${r.diagnostico}<br>
+            <b>Tratamento:</b> ${r.tratamento}
+        </div>`;
     });
 }
 </script>
