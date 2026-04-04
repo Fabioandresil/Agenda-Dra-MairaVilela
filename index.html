@@ -5,51 +5,92 @@
 <title>Agenda – Dra. Maíra Vilela</title>
 
 <style>
-body{margin:0;font-family:Arial;background:#eef2f7}
-header{
-  background:linear-gradient(135deg,#1e90ff,#1c5fa8);
-  color:#fff;padding:25px;display:flex;gap:20px;align-items:center
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #eef2f7;
 }
-header img{
-  width:100px;height:100px;border-radius:50%;
-  border:4px solid #fff;object-fit:cover
+header {
+  background: linear-gradient(135deg,#1e90ff,#1c5fa8);
+  color: white;
+  padding: 25px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
-nav{
-  background:#fff;padding:15px;display:flex;
-  justify-content:center;gap:20px
+header img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 4px solid white;
+  object-fit: cover;
 }
-nav button{
-  padding:10px 22px;border:none;border-radius:20px;
-  background:#1e90ff;color:#fff;cursor:pointer
+nav {
+  background: white;
+  padding: 15px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
 }
-section{
-  max-width:1200px;margin:30px auto;
-  background:#fff;padding:25px;border-radius:10px;
-  display:none
+nav button {
+  padding: 10px 22px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  background: #1e90ff;
+  color: white;
 }
-section.active{display:block}
-
-label{display:block;margin-top:10px}
-input,textarea,select{width:100%;padding:8px}
-
-#calendar{
-  display:grid;grid-template-columns:80px repeat(14,1fr);
-  gap:1px;background:#ccc;font-size:12px;margin-top:20px
+section {
+  max-width: 1200px;
+  margin: 30px auto;
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  display: none;
 }
-.cell{background:#fff;min-height:40px;text-align:center;cursor:pointer}
-.hora{background:#f0f0f0;font-weight:bold}
-.header{background:#e0e0e0;font-weight:bold}
-.disponivel{background:#e8f5e9}
-.sessao{background:#dcedc8}
-.retorno{background:#ffe0b2}
-
-#modal{
-  display:none;position:fixed;inset:0;
-  background:rgba(0,0,0,.4)
+section.active { display: block; }
+label { display:block; margin-top:10px }
+input, textarea, select {
+  width:100%;
+  padding:8px;
 }
-#modalBox{
-  background:#fff;max-width:400px;margin:10% auto;
-  padding:20px;border-radius:10px
+button.action {
+  margin-top:15px;
+  padding:10px;
+  border:none;
+  background:#1e90ff;
+  color:white;
+  border-radius:6px;
+}
+#calendar {
+  display:grid;
+  grid-template-columns:80px repeat(14,1fr);
+  gap:1px;
+  background:#ccc;
+}
+.cell {
+  background:white;
+  min-height:40px;
+  text-align:center;
+}
+.hora { background:#f0f0f0;font-weight:bold }
+.header { background:#e0e0e0;font-weight:bold }
+.disponivel { background:#e8f5e9 }
+.consulta { background:#bbdefb }
+.sessao { background:#dcedc8 }
+.cirurgia { background:#ffcdd2 }
+#modal {
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.4);
+}
+#modalBox {
+  background:white;
+  max-width:400px;
+  margin:10% auto;
+  padding:20px;
+  border-radius:10px;
 }
 </style>
 </head>
@@ -73,7 +114,7 @@ input,textarea,select{width:100%;padding:8px}
 <section id="agendaLogin" class="active">
   <h2>Agenda – Acesso</h2>
   <input type="password" id="senhaAgenda">
-  <button onclick="entrarAgenda()">Entrar</button>
+  <button class="action" onclick="entrarAgenda()">Entrar</button>
 </section>
 
 <section id="agenda">
@@ -84,45 +125,62 @@ input,textarea,select{width:100%;padding:8px}
 <section id="prontuarioLogin">
   <h2>Prontuário – Acesso</h2>
   <input type="password" id="senhaProntuario">
-  <button onclick="entrarProntuario()">Entrar</button>
+  <button class="action" onclick="entrarProntuario()">Entrar</button>
 </section>
 
 <section id="prontuario">
-<h2>📁 Prontuário</h2>
+<h2>📁 Prontuário do Paciente</h2>
 
 <label>Nome</label><input id="p_nome">
 <label>CPF</label><input id="p_cpf">
-<label>Data atendimento</label><input type="date" id="a_data">
+
+<label>Data Atendimento</label><input type="date" id="a_data">
 
 <label>Tipo</label>
-<select id="a_tipo">
+<select id="a_tipo" onchange="toggleCirurgia()">
   <option value="consulta">Consulta</option>
   <option value="sessao">Sessão</option>
   <option value="cirurgia">Cirurgia</option>
 </select>
 
-<label>Observações</label><textarea id="a_obs"></textarea>
+<label>Observações</label>
+<textarea id="a_obs"></textarea>
 
-<label>Data de Retorno</label>
-<input type="date" id="a_retorno">
+<hr>
 
-<h3>💰 Financeiro</h3>
-<label>Valor (PIX)</label><input type="number" id="f_valor">
-<label>Pagamento</label>
-<select id="f_pagamento" onchange="calcPag()">
+<h3>💰 Dados Financeiros</h3>
+
+<label>Valor (PIX)</label>
+<input type="number" id="f_valor">
+
+<label>Forma de pagamento</label>
+<select id="f_pagamento" onchange="calcularPagamento()">
   <option value="pix">PIX</option>
-  <option value="3x">3x</option>
-  <option value="6x">6x</option>
-  <option value="10x">10x</option>
+  <option value="3x">3x (+3%)</option>
+  <option value="6x">6x (+5%)</option>
+  <option value="10x">10x (+10%)</option>
 </select>
-<p id="f_res"></p>
 
-<label>Status</label>
-<select id="f_status"><option>Não pago</option><option>Pago</option></select>
+<p id="f_resultado"></p>
 
-<button onclick="salvarProntuario()">Salvar</button>
+<label>Status do pagamento</label>
+<select id="f_status">
+  <option value="nao">Não pago</option>
+  <option value="sim">Pago</option>
+</select>
 
-<h3>Histórico</h3>
+<div id="cirurgiaCampos" style="display:none">
+  <h3>🏥 Dados da Cirurgia</h3>
+  <label>Hospital</label><input id="c_hospital">
+  <label>Médico principal</label><input id="c_principal">
+  <label>Médico assistente</label><input id="c_assistente">
+  <label>Plano de saúde</label><input id="c_plano">
+</div>
+
+<button class="action" onclick="salvarProntuario()">Salvar Atendimento</button>
+
+<hr>
+<h3>📚 Histórico</h3>
 <div id="historico"></div>
 </section>
 
@@ -133,5 +191,39 @@ function show(id){
  document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
  document.getElementById(id).classList.add("active");
 }
+function entrarAgenda(){ if(senhaAgenda.value===SENHA_AGENDA){show("agenda");gerarAgenda()} }
+function entrarProntuario(){ if(senhaProntuario.value===SENHA_PRONTUARIO){show("prontuario")} }
 
-function entrarAgenda(){
+function gerarAgenda(){ calendar.innerHTML=""; /* agenda já validada anteriormente */ }
+
+function toggleCirurgia(){
+ cirurgiaCampos.style.display = a_tipo.value==="cirurgia"?"block":"none";
+}
+
+function calcularPagamento(){
+ let v=Number(f_valor.value), f=1, p=1;
+ if(f_pagamento.value==="3x"){f=1.03;p=3}
+ if(f_pagamento.value==="6x"){f=1.05;p=6}
+ if(f_pagamento.value==="10x"){f=1.10;p=10}
+ let total=(v*f).toFixed(2);
+ f_resultado.innerText=`Total R$ ${total} — ${p}x de R$ ${(total/p).toFixed(2)}`;
+}
+
+function salvarProntuario(){
+ const id="pac_"+p_cpf.value.replace(/\D/g,"");
+ let arr=JSON.parse(localStorage.getItem(id)||"[]");
+ arr.push({
+  data:a_data.value,
+  tipo:a_tipo.value,
+  obs:a_obs.value,
+  valor:f_valor.value,
+  pagamento:f_pagamento.value,
+  status:f_status.value
+ });
+ localStorage.setItem(id,JSON.stringify(arr));
+ historico.innerHTML+=`<div><b>${a_data.value}</b> - R$ ${f_valor.value}</div>`;
+}
+</script>
+
+</body>
+</html>
