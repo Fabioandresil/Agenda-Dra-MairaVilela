@@ -5,33 +5,102 @@
 <title>Agenda – Dra. Maíra Vilela</title>
 
 <style>
-body{margin:0;font-family:Arial,sans-serif;background:#eef2f7}
-header{
-  background:linear-gradient(135deg,#1e90ff,#1c5fa8);
-  color:#fff;padding:25px;display:flex;align-items:center;gap:20px
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #eef2f7;
 }
-header img{
-  width:100px;height:100px;border-radius:50%;
-  border:4px solid #fff;object-fit:cover
+
+/* HEADER */
+header {
+  background: linear-gradient(135deg,#1e90ff,#1c5fa8);
+  color: white;
+  padding: 25px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
-nav{
-  background:#fff;padding:15px;display:flex;justify-content:center;
-  gap:20px;box-shadow:0 2px 5px rgba(0,0,0,.1)
+header img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 4px solid white;
+  object-fit: cover;
 }
-nav button{
-  padding:10px 20px;border-radius:20px;border:none;
-  background:#1e90ff;color:#fff;cursor:pointer
+
+/* NAV */
+nav {
+  background: white;
+  padding: 15px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  box-shadow: 0 2px 5px rgba(0,0,0,.1);
 }
-section{
-  max-width:1100px;margin:30px auto;background:#fff;
-  padding:25px;border-radius:10px;display:none
+nav button {
+  padding: 10px 20px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  background: #1e90ff;
+  color: white;
 }
-section.active{display:block}
-label{display:block;margin-top:10px}
-input,textarea,select{width:100%;padding:8px}
-button.action{
-  margin-top:15px;padding:10px;border:none;
-  background:#1e90ff;color:#fff;border-radius:6px
+
+/* SEÇÕES */
+section {
+  max-width: 1200px;
+  margin: 30px auto;
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  display: none;
+}
+section.active {
+  display: block;
+}
+
+/* CALENDÁRIO */
+#calendar {
+  display: grid;
+  grid-template-columns: 80px repeat(14, 1fr);
+  gap: 1px;
+  margin-top: 20px;
+  background: #ccc;
+  font-size: 12px;
+}
+.cell {
+  background: white;
+  min-height: 40px;
+  padding: 4px;
+  text-align: center;
+}
+.hora {
+  background: #f0f0f0;
+  font-weight: bold;
+}
+.header {
+  background: #e0e0e0;
+  font-weight: bold;
+}
+.disponivel { background: #e8f5e9; }
+.ocupado { background: #bbdefb; }
+
+/* FORM */
+label {
+  display: block;
+  margin-top: 10px;
+}
+input, textarea, select {
+  width: 100%;
+  padding: 8px;
+}
+button.action {
+  margin-top: 15px;
+  padding: 10px;
+  border: none;
+  background: #1e90ff;
+  color: white;
+  border-radius: 6px;
 }
 </style>
 </head>
@@ -39,131 +108,128 @@ button.action{
 <body>
 
 <header>
-    <img src="img/dra_mairavilela.jpg">
-    <div>
-        <h1>Dra. Maíra Vilela</h1>
-        <p>Cirurgiã Vascular – Brasília</p>
-        <p>(61) 98589‑5499</p>
-    </div>
+  <img src="img/dra_mairavilela.jpg" alt="Dra. Maíra Vilela">
+  <div>
+    <h1>Dra. Maíra Vilela</h1>
+    <p>Cirurgiã Vascular – Brasília</p>
+    <p>(61) 98589-5499</p>
+  </div>
 </header>
 
 <nav>
-    <button onclick="mostrar('agendaLogin')">Agenda</button>
-    <button onclick="mostrar('prontuarioLogin')">Prontuários</button>
+  <button onclick="mostrar('agendaLogin')">Agenda</button>
+  <button onclick="mostrar('prontuarioLogin')">Prontuários</button>
 </nav>
 
 <!-- LOGIN AGENDA -->
 <section id="agendaLogin" class="active">
-<h2>Agenda – Acesso</h2>
-<label>Senha</label>
-<input type="password" id="senhaAgenda">
-<button class="action" onclick="entrarAgenda()">Entrar</button>
+  <h2>Agenda – Acesso</h2>
+  <label>Senha</label>
+  <input type="password" id="senhaAgenda">
+  <button class="action" onclick="entrarAgenda()">Entrar</button>
 </section>
 
 <!-- AGENDA -->
 <section id="agenda">
-<h2>📅 Agenda – Próximas 2 semanas</h2>
-<p>(Calendário já validado na etapa anterior)</p>
+  <h2>📅 Agenda – Próximas 2 semanas</h2>
+  <div id="calendar"></div>
 </section>
 
 <!-- LOGIN PRONTUÁRIO -->
 <section id="prontuarioLogin">
-<h2>Prontuário – Acesso</h2>
-<label>Senha</label>
-<input type="password" id="senhaProntuario">
-<button class="action" onclick="entrarProntuario()">Entrar</button>
+  <h2>Prontuário – Acesso</h2>
+  <label>Senha</label>
+  <input type="password" id="senhaProntuario">
+  <button class="action" onclick="entrarProntuario()">Entrar</button>
 </section>
 
-<!-- PRONTUÁRIO COMPLETO -->
+<!-- PRONTUÁRIO -->
 <section id="prontuario">
-<h2>📁 Prontuário do Paciente</h2>
+  <h2>📁 Prontuário do Paciente</h2>
 
-<h3>Identificação</h3>
-<label>Nome</label><input id="p_nome">
-<label>CPF</label><input id="p_cpf">
-<label>Data de nascimento</label><input type="date" id="p_nasc">
-<label>Telefone</label><input id="p_tel">
-<label>Peso</label><input id="p_peso">
-<label>Altura</label><input id="p_altura">
-<label>Tipo sanguíneo</label><input id="p_sangue">
-<label>Doenças pré-existentes</label><textarea id="p_doencas"></textarea>
+  <label>Nome do paciente</label>
+  <input id="p_nome">
 
-<hr>
+  <label>CPF</label>
+  <input id="p_cpf">
 
-<h3>Novo Atendimento</h3>
-<label>Data do atendimento</label><input type="date" id="a_data">
-<label>Tipo</label>
-<select id="a_tipo" onchange="toggleCirurgia()">
-<option value="consulta">Consulta</option>
-<option value="sessao">Sessão</option>
-<option value="cirurgia">Cirurgia</option>
-</select>
+  <label>Data de atendimento</label>
+  <input type="date" id="a_data">
 
-<label>Evolução / Observações</label>
-<textarea id="a_obs"></textarea>
+  <label>Tipo de atendimento</label>
+  <select id="a_tipo">
+    <option>Consulta</option>
+    <option>Sessão</option>
+    <option>Cirurgia</option>
+  </select>
 
-<label>Data de retorno</label><input type="date" id="a_retorno">
+  <label>Observações</label>
+  <textarea id="a_obs"></textarea>
 
-<div id="cirurgiaBox" style="display:none">
-<h4>Cirurgia</h4>
-<label>Hospital</label><input id="c_hospital">
-<label>Médico principal</label><input id="c_principal">
-<label>Médico assistente</label><input id="c_assistente">
-<label>Valor (PIX)</label><input type="number" id="c_valor">
-</div>
-
-<button class="action" onclick="salvarProntuario()">Salvar Atendimento</button>
-
-<h3>📚 Histórico</h3>
-<div id="historico"></div>
+  <button class="action">Salvar atendimento</button>
 </section>
 
 <script>
-const SENHA_AGENDA="agenda123",SENHA_PRONTUARIO="prontuario123";
+const SENHA_AGENDA = "agenda123";
+const SENHA_PRONTUARIO = "prontuario123";
 
-function mostrar(id){
- document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
- document.getElementById(id).classList.add("active");
+function mostrar(id) {
+  document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
 }
 
-function entrarAgenda(){
- if(senhaAgenda.value===SENHA_AGENDA)mostrar("agenda");
- else alert("Senha incorreta");
+function entrarAgenda() {
+  if (senhaAgenda.value === SENHA_AGENDA) {
+    mostrar("agenda");
+    gerarAgenda();
+  } else {
+    alert("Senha incorreta");
+  }
 }
 
-function entrarProntuario(){
- if(senhaProntuario.value===SENHA_PRONTUARIO)mostrar("prontuario");
- else alert("Senha incorreta");
+function entrarProntuario() {
+  if (senhaProntuario.value === SENHA_PRONTUARIO) {
+    mostrar("prontuario");
+  } else {
+    alert("Senha incorreta");
+  }
 }
 
-function toggleCirurgia(){
- cirurgiaBox.style.display = a_tipo.value==="cirurgia"?"block":"none";
-}
+function gerarAgenda() {
+  const calendar = document.getElementById("calendar");
+  calendar.innerHTML = "";
 
-function salvarProntuario(){
- const cpf=p_cpf.value.replace(/\D/g,"");
- if(!cpf)return alert("Informe o CPF");
- const id="paciente_"+cpf;
- let dados=JSON.parse(localStorage.getItem(id)||"[]");
- dados.push({
-   data:a_data.value,
-   tipo:a_tipo.value,
-   obs:a_obs.value,
-   retorno:a_retorno.value
- });
- localStorage.setItem(id,JSON.stringify(dados));
- renderHistorico(id);
-}
+  const hoje = new Date();
+  const dias = [];
 
-function renderHistorico(id){
- const dados=JSON.parse(localStorage.getItem(id));
- historico.innerHTML="";
- dados.forEach(d=>{
-  historico.innerHTML+=`
-  <div style="border-left:4px solid #1e90ff;padding:10px;margin:10px 0">
-   <b>${d.data}</b> — ${d.tipo}<br>${d.obs}<br>Retorno: ${d.retorno||"-"}
-  </div>`;
- });
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(hoje);
+    d.setDate(hoje.getDate() + i);
+    dias.push(d);
+  }
+
+  calendar.appendChild(document.createElement("div"));
+
+  dias.forEach(d => {
+    const h = document.createElement("div");
+    h.className = "cell header";
+    h.innerText = d.toLocaleDateString("pt-BR",{weekday:"short",day:"2-digit",month:"2-digit"});
+    calendar.appendChild(h);
+  });
+
+  for (let hora = 8; hora <= 18; hora++) {
+    const hDiv = document.createElement("div");
+    hDiv.className = "cell hora";
+    hDiv.innerText = hora + ":00";
+    calendar.appendChild(hDiv);
+
+    dias.forEach(() => {
+      const c = document.createElement("div");
+      c.className = "cell disponivel";
+      c.innerText = "";
+      calendar.appendChild(c);
+    });
+  }
 }
 </script>
 
