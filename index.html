@@ -6,49 +6,67 @@
 
 <style>
 body{margin:0;font-family:Arial;background:#eef2f7}
+
+/* HEADER */
 header{
   background:linear-gradient(135deg,#1e90ff,#1c5fa8);
-  color:#fff;padding:25px;display:flex;gap:20px;align-items:center
+  color:white;padding:25px;display:flex;gap:20px;align-items:center
 }
 header img{
   width:100px;height:100px;border-radius:50%;
-  border:4px solid #fff;object-fit:cover
+  border:4px solid white;object-fit:cover
 }
+
+/* NAV */
 nav{
-  background:#fff;padding:15px;display:flex;
+  background:white;padding:15px;display:flex;
   justify-content:center;gap:20px
 }
 nav button{
   padding:10px 22px;border:none;border-radius:20px;
-  background:#1e90ff;color:#fff;cursor:pointer
+  background:#1e90ff;color:white;cursor:pointer
 }
+
+/* SECTIONS */
 section{
   max-width:1200px;margin:30px auto;
-  background:#fff;padding:25px;border-radius:10px;
+  background:white;padding:25px;border-radius:10px;
   display:none
 }
 section.active{display:block}
 
-label{display:block;margin-top:10px}
-input,textarea,select{width:100%;padding:8px}
-
+/* CALENDAR */
 #calendar{
-  display:grid;grid-template-columns:80px repeat(14,1fr);
-  gap:1px;background:#ccc;font-size:12px;margin-top:20px
+  display:grid;
+  grid-template-columns:80px repeat(14,1fr);
+  gap:1px;
+  background:#ccc;
+  font-size:12px;
+  margin-top:20px
 }
-.cell{background:#fff;min-height:40px;text-align:center;cursor:pointer}
+.cell{
+  background:white;
+  min-height:40px;
+  text-align:center;
+  cursor:pointer
+}
 .hora{background:#f0f0f0;font-weight:bold}
 .header{background:#e0e0e0;font-weight:bold}
 .disponivel{background:#e8f5e9}
-.sessao{background:#dcedc8}
 .retorno{background:#ffe0b2}
 
+/* FORM */
+label{display:block;margin-top:10px}
+input,textarea,select{width:100%;padding:8px}
+button{margin-top:10px;padding:10px;background:#1e90ff;color:white;border:none;border-radius:6px}
+
+/* MODAL */
 #modal{
   display:none;position:fixed;inset:0;
   background:rgba(0,0,0,.4)
 }
 #modalBox{
-  background:#fff;max-width:400px;margin:10% auto;
+  background:white;max-width:400px;margin:10% auto;
   padding:20px;border-radius:10px
 }
 </style>
@@ -66,8 +84,8 @@ input,textarea,select{width:100%;padding:8px}
 </header>
 
 <nav>
-  <button onclick="show('agendaLogin')">Agenda</button>
-  <button onclick="show('prontuarioLogin')">Prontuários</button>
+  <button onclick="mostrarAgendaLogin()">Agenda</button>
+  <button onclick="mostrarProntuarioLogin()">Prontuários</button>
 </nav>
 
 <section id="agendaLogin" class="active">
@@ -88,102 +106,79 @@ input,textarea,select{width:100%;padding:8px}
 </section>
 
 <section id="prontuario">
-<h2>📁 Prontuário</h2>
+  <h2>📁 Prontuário</h2>
 
-<label>Nome</label><input id="p_nome">
-<label>CPF</label><input id="p_cpf">
-<label>Data atendimento</label><input type="date" id="a_data">
+  <label>Nome</label><input id="p_nome">
+  <label>CPF</label><input id="p_cpf">
+  <label>Data atendimento</label><input type="date" id="a_data">
+  <label>Data retorno</label><input type="date" id="a_retorno">
 
-<label>Tipo</label>
-<select id="a_tipo">
-  <option value="consulta">Consulta</option>
-  <option value="sessao">Sessão</option>
-  <option value="cirurgia">Cirurgia</option>
-</select>
+  <label>Valor (PIX)</label>
+  <input type="number" id="f_valor">
 
-<label>Observações</label><textarea id="a_obs"></textarea>
+  <label>Forma pagamento</label>
+  <select id="f_pagamento" onchange="calcPagamento()">
+    <option value="pix">PIX</option>
+    <option value="3x">3x (+3%)</option>
+    <option value="6x">6x (+5%)</option>
+    <option value="10x">10x (+10%)</option>
+  </select>
 
-<label>Data de Retorno</label>
-<input type="date" id="a_retorno">
+  <p id="pagamentoResultado"></p>
 
-<h3>💰 Financeiro</h3>
-<label>Valor (PIX)</label><input type="number" id="f_valor">
-<label>Pagamento</label>
-<select id="f_pagamento" onchange="calcPag()">
-  <option value="pix">PIX</option>
-  <option value="3x">3x</option>
-  <option value="6x">6x</option>
-  <option value="10x">10x</option>
-</select>
-<p id="f_res"></p>
+  <label>Status</label>
+  <select id="f_status">
+    <option>Não pago</option>
+    <option>Pago</option>
+  </select>
 
-<label>Status</label>
-<select id="f_status"><option>Não pago</option><option>Pago</option></select>
-
-<button onclick="salvarProntuario()">Salvar</button>
-
-<h3>Histórico</h3>
-<div id="historico"></div>
+  <button onclick="salvarProntuario()">Salvar atendimento</button>
 </section>
 
-<script>
-const SENHA_AGENDA="agenda123",SENHA_PRONTUARIO="prontuario123";
+<div id="modal">
+  <div id="modalBox">
+    <label>Status</label>
+    <select id="m_status">
+      <option value="disponivel">Disponível</option>
+      <option value="retorno">Retorno</option>
+    </select>
+    <button onclick="salvarSlot()">Salvar</button>
+    <button onclick="fecharModal()">Cancelar</button>
+  </div>
+</div>
 
-function show(id){
+<script>
+const SENHA_AGENDA="agenda123";
+const SENHA_PRONTUARIO="prontuario123";
+let slotAtual=null;
+
+function mostrarAgendaLogin(){mostrar("agendaLogin")}
+function mostrarProntuarioLogin(){mostrar("prontuarioLogin")}
+function mostrar(id){
  document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
  document.getElementById(id).classList.add("active");
 }
 
 function entrarAgenda(){
- if(senhaAgenda.value===SENHA_AGENDA){show("agenda");renderAgenda()}
- else alert("Senha incorreta");
-}
-function entrarProntuario(){
- if(senhaProntuario.value===SENHA_PRONTUARIO){show("prontuario")}
- else alert("Senha incorreta");
-}
-
-function calcPag(){
- let v=Number(f_valor.value),f=1,p=1;
- if(f_pagamento.value==="3x"){f=1.03;p=3}
- if(f_pagamento.value==="6x"){f=1.05;p=6}
- if(f_pagamento.value==="10x"){f=1.10;p=10}
- let t=(v*f).toFixed(2);
- f_res.innerText=`Total R$ ${t} — ${p}x de R$ ${(t/p).toFixed(2)}`;
-}
-
-function salvarProntuario(){
- const cpf=p_cpf.value.replace(/\D/g,"");
- const id="pac_"+cpf;
- let hist=JSON.parse(localStorage.getItem(id)||"[]");
-
- hist.push({data:a_data.value,tipo:a_tipo.value,obs:a_obs.value,retorno:a_retorno.value});
- localStorage.setItem(id,JSON.stringify(hist));
-
- // 👉 AQUI É A INTEGRAÇÃO COM A AGENDA
- if(a_retorno.value){
-  let ret=JSON.parse(localStorage.getItem("agendaRetornos")||"{}");
-  ret[a_retorno.value+"_9"]={ tipo:"retorno", nome:p_nome.value };
-  localStorage.setItem("agendaRetornos",JSON.stringify(ret));
+ if(senhaAgenda.value===SENHA_AGENDA){
+  mostrar("agenda");
+  renderAgenda();
  }
-
- renderHistorico(id);
- alert("Prontuário salvo e retorno lançado na agenda");
 }
 
-function renderHistorico(id){
- historico.innerHTML="";
- let arr=JSON.parse(localStorage.getItem(id)||"[]");
- arr.forEach(r=>{
-  historico.innerHTML+=`<div><b>${r.data}</b> – Retorno: ${r.retorno||"-"}</div>`;
- });
+function entrarProntuario(){
+ if(senhaProntuario.value===SENHA_PRONTUARIO){
+  mostrar("prontuario");
+ }
 }
 
 function renderAgenda(){
+ const calendar=document.getElementById("calendar");
  calendar.innerHTML="";
- let hoje=new Date();
- let dias=[...Array(14)].map((_,i)=>new Date(hoje.getFullYear(),hoje.getMonth(),hoje.getDate()+i));
- let retornos=JSON.parse(localStorage.getItem("agendaRetornos")||"{}");
+ const hoje=new Date();
+ const retornos=JSON.parse(localStorage.getItem("retornos")||"{}");
+
+ const dias=[...Array(14)].map((_,i)=>new Date(hoje.getFullYear(),hoje.getMonth(),hoje.getDate()+i));
 
  calendar.appendChild(document.createElement("div"));
  dias.forEach(d=>{
@@ -194,21 +189,41 @@ function renderAgenda(){
  });
 
  for(let h=8;h<=18;h++){
-  let hh=document.createElement("div");
-  hh.className="cell hora";hh.innerText=h+":00";
-  calendar.appendChild(hh);
+  let col=document.createElement("div");
+  col.className="cell hora";
+  col.innerText=h+":00";
+  calendar.appendChild(col);
+
   dias.forEach(d=>{
-   let k=d.toISOString().slice(0,10)+"_"+h;
-   let c=document.createElement("div");
-   if(retornos[k]){
-     c.className="cell retorno";
-     c.innerText="Retorno";
-   } else {
-     c.className="cell disponivel";
-   }
-   calendar.appendChild(c);
+    let key=d.toISOString().slice(0,10)+"_"+h;
+    let c=document.createElement("div");
+    c.className="cell "+(retornos[key]?"retorno":"disponivel");
+    c.innerText=retornos[key]?"Retorno":"";
+    c.onclick=()=>{slotAtual=key;modal.style.display="block"};
+    calendar.appendChild(c);
   });
  }
+}
+
+function fecharModal(){modal.style.display="none"}
+function salvarSlot(){modal.style.display="none"}
+
+function calcPagamento(){
+ let v=Number(f_valor.value),f=1,p=1;
+ if(f_pagamento.value==="3x"){f=1.03;p=3}
+ if(f_pagamento.value==="6x"){f=1.05;p=6}
+ if(f_pagamento.value==="10x"){f=1.10;p=10}
+ let t=(v*f).toFixed(2);
+ pagamentoResultado.innerText=`Total R$ ${t} — ${p}x de R$ ${(t/p).toFixed(2)}`;
+}
+
+function salvarProntuario(){
+ if(a_retorno.value){
+  let ret=JSON.parse(localStorage.getItem("retornos")||"{}");
+  ret[a_retorno.value+"_9"]=true;
+  localStorage.setItem("retornos",JSON.stringify(ret));
+ }
+ alert("Atendimento salvo e retorno incluído na agenda");
 }
 </script>
 
