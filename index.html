@@ -135,10 +135,163 @@ button.action:hover {
 
 <body>
 
-<!-- ✅ HEADER CORRIGIDO -->
 <header>
     <img src="img/dra_mairavilela.jpg" alt="Dra. Maíra Vilela">
     <div>
         <h1>Dra. Maíra Vilela</h1>
         <p>Cirurgiã Vascular</p>
         <p>Brasília – DF</p>
+        <p>📞 (61) 98589‑5499</p>
+    </div>
+</header>
+
+<nav>
+    <button onclick="mostrar('agenda')">Agenda</button>
+    <button onclick="mostrar('prontuario')">Prontuários</button>
+</nav>
+
+<main>
+
+<!-- ✅ AGENDA AGORA APARECE POR PADRÃO -->
+<section id="agenda" class="active">
+    <h2>Agenda</h2>
+
+    <label>Senha da Agenda</label>
+    <input type="password" id="senhaAgenda">
+
+    <button class="action" onclick="acessarAgenda()">Entrar</button>
+</section>
+
+<section id="prontuario">
+    <h2>Prontuário do Paciente</h2>
+
+    <label>ID do Paciente</label>
+    <input id="idPaciente">
+
+    <label>Nome do Paciente</label>
+    <input id="nomePaciente">
+
+    <label>Telefone 1</label>
+    <input id="telefone1">
+
+    <label>Telefone 2</label>
+    <input id="telefone2">
+
+    <hr>
+
+    <label>Data</label>
+    <input type="date" id="dataRegistro">
+
+    <label>Sintomas</label>
+    <textarea id="sintomas"></textarea>
+
+    <label>Diagnóstico</label>
+    <textarea id="diagnostico"></textarea>
+
+    <label>Tratamento</label>
+    <textarea id="tratamento"></textarea>
+
+    <label>Fotos</label>
+    <input type="file" id="fotos" multiple>
+
+    <button class="action" onclick="salvarProntuario()">Salvar</button>
+
+    <hr>
+    <h3>Histórico</h3>
+    <div id="historico"></div>
+</section>
+
+</main>
+
+<script>
+const SENHA_AGENDA = "agenda123";
+
+function mostrar(id) {
+    document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+}
+
+function acessarAgenda() {
+    if (senhaAgenda.value === SENHA_AGENDA) {
+        alert("Agenda liberada (protótipo).");
+    } else {
+        alert("Senha incorreta.");
+    }
+}
+
+function salvarProntuario() {
+    const id = idPaciente.value.trim();
+    if (!id) {
+        alert("Informe o ID do paciente.");
+        return;
+    }
+
+    let pacientes = JSON.parse(localStorage.getItem("pacientes")) || {};
+
+    if (!pacientes[id]) {
+        pacientes[id] = {
+            nome: nomePaciente.value,
+            telefone1: telefone1.value,
+            telefone2: telefone2.value,
+            historico: []
+        };
+    }
+
+    let fotosBase64 = [];
+    const arquivos = fotos.files;
+
+    if (arquivos.length === 0) finalizar([]);
+
+    let lidos = 0;
+    for (let file of arquivos) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            fotosBase64.push(e.target.result);
+            lidos++;
+            if (lidos === arquivos.length) finalizar(fotosBase64);
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function finalizar(fotos) {
+        pacientes[id].historico.push({
+            data: dataRegistro.value,
+            sintomas: sintomas.value,
+            diagnostico: diagnostico.value,
+            tratamento: tratamento.value,
+            fotos
+        });
+        localStorage.setItem("pacientes", JSON.stringify(pacientes));
+        carregarHistorico();
+        alert("Prontuário salvo.");
+    }
+}
+
+function carregarHistorico() {
+    let pacientes = JSON.parse(localStorage.getItem("pacientes")) || {};
+    let div = document.getElementById("historico");
+    div.innerHTML = "";
+    const id = idPaciente.value;
+    if (!pacientes[id]) return;
+
+    pacientes[id].historico.forEach(reg => {
+        let bloco = document.createElement("div");
+        bloco.className = "hist-bloco";
+        bloco.innerHTML = `
+            <strong>Data:</strong> ${reg.data}<br>
+            <strong>Sintomas:</strong> ${reg.sintomas}<br>
+            <strong>Diagnóstico:</strong> ${reg.diagnostico}<br>
+            <strong>Tratamento:</strong> ${reg.tratamento}<br>
+        `;
+        reg.fotos.forEach(f => {
+            let img = document.createElement("img");
+            img.src = f;
+            bloco.appendChild(img);
+        });
+        div.appendChild(bloco);
+    });
+}
+</script>
+
+</body>
+</html>
