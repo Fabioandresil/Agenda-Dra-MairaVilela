@@ -20,6 +20,7 @@ header {
   align-items: center;
   gap: 20px;
 }
+
 header img {
   width: 100px;
   height: 100px;
@@ -37,6 +38,7 @@ nav {
   gap: 20px;
   box-shadow: 0 2px 5px rgba(0,0,0,.1);
 }
+
 nav button {
   padding: 10px 20px;
   border-radius: 20px;
@@ -55,6 +57,7 @@ section {
   border-radius: 10px;
   display: none;
 }
+
 section.active {
   display: block;
 }
@@ -68,32 +71,39 @@ section.active {
   background: #ccc;
   font-size: 12px;
 }
+
 .cell {
   background: white;
   min-height: 40px;
   padding: 4px;
   text-align: center;
 }
+
 .hora {
   background: #f0f0f0;
   font-weight: bold;
 }
+
 .header {
   background: #e0e0e0;
   font-weight: bold;
 }
-.disponivel { background: #e8f5e9; }
-.ocupado { background: #bbdefb; }
+
+.disponivel {
+  background: #e8f5e9;
+}
 
 /* FORM */
 label {
   display: block;
   margin-top: 10px;
 }
+
 input, textarea, select {
   width: 100%;
   padding: 8px;
 }
+
 button.action {
   margin-top: 15px;
   padding: 10px;
@@ -112,7 +122,7 @@ button.action {
   <div>
     <h1>Dra. Maíra Vilela</h1>
     <p>Cirurgiã Vascular – Brasília</p>
-    <p>(61) 98589-5499</p>
+    <p>(61) 98589‑5499</p>
   </div>
 </header>
 
@@ -137,102 +147,3 @@ button.action {
 
 <!-- LOGIN PRONTUÁRIO -->
 <section id="prontuarioLogin">
-  <h2>Prontuário – Acesso</h2>
-  <label>Senha</label>
-  <input type="password" id="senhaProntuario">
-  <button class="action" onclick="entrarProntuario()">Entrar</button>
-</section>
-
-<!-- PRONTUÁRIO -->
-<section id="prontuario">
-  <h2>📁 Prontuário do Paciente</h2>
-
-  <label>Nome do paciente</label>
-  <input id="p_nome">
-
-  <label>CPF</label>
-  <input id="p_cpf">
-
-  <label>Data de atendimento</label>
-  <input type="date" id="a_data">
-
-  <label>Tipo de atendimento</label>
-  <select id="a_tipo">
-    <option>Consulta</option>
-    <option>Sessão</option>
-    <option>Cirurgia</option>
-  </select>
-
-  <label>Observações</label>
-  <textarea id="a_obs"></textarea>
-
-  <button class="action">Salvar atendimento</button>
-</section>
-
-<script>
-const SENHA_AGENDA = "agenda123";
-const SENHA_PRONTUARIO = "prontuario123";
-
-function mostrar(id) {
-  document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-}
-
-function entrarAgenda() {
-  if (senhaAgenda.value === SENHA_AGENDA) {
-    mostrar("agenda");
-    gerarAgenda();
-  } else {
-    alert("Senha incorreta");
-  }
-}
-
-function entrarProntuario() {
-  if (senhaProntuario.value === SENHA_PRONTUARIO) {
-    mostrar("prontuario");
-  } else {
-    alert("Senha incorreta");
-  }
-}
-
-function gerarAgenda() {
-  const calendar = document.getElementById("calendar");
-  calendar.innerHTML = "";
-
-  const hoje = new Date();
-  const dias = [];
-
-  for (let i = 0; i < 14; i++) {
-    const d = new Date(hoje);
-    d.setDate(hoje.getDate() + i);
-    dias.push(d);
-  }
-
-  calendar.appendChild(document.createElement("div"));
-
-  dias.forEach(d => {
-    const h = document.createElement("div");
-    h.className = "cell header";
-    h.innerText = d.toLocaleDateString("pt-BR",{weekday:"short",day:"2-digit",month:"2-digit"});
-    calendar.appendChild(h);
-  });
-
-  for (let hora = 8; hora <= 18; hora++) {
-    const hDiv = document.createElement("div");
-    hDiv.className = "cell hora";
-    hDiv.innerText = hora + ":00";
-    calendar.appendChild(hDiv);
-
-    dias.forEach(() => {
-      const c = document.createElement("div");
-      c.className = "cell disponivel";
-      c.innerText = "";
-      calendar.appendChild(c);
-    });
-  }
-}
-</script>
-
-</body>
-</html>
-``
