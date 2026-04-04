@@ -2,80 +2,178 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Agenda da Dra. Maíra Vilela</title>
+<title>Agenda – Dra. Maíra Vilela</title>
 
 <style>
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background: #f2f6fa;
+    background: #eef2f7;
 }
 
-/* HEADER */
 header {
     background: linear-gradient(135deg,#1e90ff,#1c5fa8);
-    color:white;
-    padding:30px;
-    display:flex;
-    gap:25px;
-    align-items:center;
-}
-header img{
-    width:120px;height:120px;border-radius:50%;
-    border:4px solid white;object-fit:cover;
+    color: white;
+    padding: 25px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
 }
 
-/* MENU */
-nav{
-    background:white;
-    padding:15px;
-    display:flex;
-    justify-content:center;
-    gap:20px;
-    box-shadow:0 2px 5px rgba(0,0,0,.1);
-}
-nav button{
-    padding:10px 20px;
-    background:#1e90ff;
-    color:white;
-    border:none;
-    border-radius:20px;
-    cursor:pointer;
+header img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 4px solid white;
+    object-fit: cover;
 }
 
-/* SEÇÕES */
-main{padding:30px}
-section{
-    display:none;
-    background:white;
-    padding:25px;
-    max-width:1100px;
-    margin:auto;
-    border-radius:10px;
-    box-shadow:0 4px 10px rgba(0,0,0,.08)
+nav {
+    background: white;
+    padding: 15px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,.1);
 }
-section.active{display:block}
 
-/* CALENDÁRIO */
-#calendar{
-    display:grid;
-    grid-template-columns:80px repeat(14,1fr);
-    gap:1px;
-    background:#ccc;
-    margin-top:20px;
-    font-size:12px;
+nav button {
+    padding: 10px 20px;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+    background: #1e90ff;
+    color: white;
 }
-.cell{
-    background:#fff;
-    padding:4px;
-    height:40px;
-    text-align:center;
-    cursor:pointer;
+
+section {
+    max-width: 1100px;
+    margin: 30px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    display: none;
 }
-.hora{
-    font-weight:bold;
-    background:#f0f0f0;
-    cursor:default;
+
+section.active {
+    display: block;
 }
-.header{
-    background:#eee;
+
+#calendar {
+    display: grid;
+    grid-template-columns: 80px repeat(14, 1fr);
+    gap: 1px;
+    background: #ccc;
+    margin-top: 20px;
+    font-size: 12px;
+}
+
+.cell {
+    background: white;
+    height: 40px;
+    padding: 4px;
+    text-align: center;
+}
+
+.hora {
+    background: #f0f0f0;
+    font-weight: bold;
+}
+
+.header {
+    background: #e0e0e0;
+    font-weight: bold;
+}
+
+.disponivel { background: #e8f5e9; }
+</style>
+</head>
+
+<body>
+
+<header>
+    <img src="img/dra_mairavilela.jpg" alt="Dra. Maíra Vilela">
+    <div>
+        <h1>Dra. Maíra Vilela</h1>
+        <p>Cirurgiã Vascular – Brasília</p>
+        <p>(61) 98589‑5499</p>
+    </div>
+</header>
+
+<nav>
+    <button onclick="abrirLoginAgenda()">Agenda</button>
+</nav>
+
+<section id="agendaLogin" class="active">
+    <h2>Agenda – Acesso</h2>
+    <label>Senha:</label><br>
+    <input type="password" id="senhaAgenda"><br><br>
+    <button onclick="entrarAgenda()">Entrar</button>
+</section>
+
+<section id="agenda">
+    <h2>Agenda – Próximas 2 semanas</h2>
+    <div id="calendar"></div>
+</section>
+
+<script>
+const SENHA_AGENDA = "agenda123";
+
+function abrirLoginAgenda(){
+    mostrar("agendaLogin");
+}
+
+function mostrar(id){
+    document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+}
+
+function entrarAgenda(){
+    const senha = document.getElementById("senhaAgenda").value;
+    if (senha === SENHA_AGENDA) {
+        mostrar("agenda");
+        gerarAgenda();
+    } else {
+        alert("Senha incorreta");
+    }
+}
+
+function gerarAgenda(){
+    const calendar = document.getElementById("calendar");
+    calendar.innerHTML = "";
+
+    const hoje = new Date();
+    const dias = [];
+
+    for(let i=0;i<14;i++){
+        const d = new Date(hoje);
+        d.setDate(d.getDate()+i);
+        dias.push(d);
+    }
+
+    calendar.appendChild(document.createElement("div"));
+
+    dias.forEach(d=>{
+        const h = document.createElement("div");
+        h.className = "cell header";
+        h.innerText = d.toLocaleDateString("pt-BR",{weekday:"short",day:"2-digit",month:"2-digit"});
+        calendar.appendChild(h);
+    });
+
+    for(let h=8;h<=18;h++){
+        const hora = document.createElement("div");
+        hora.className = "cell hora";
+        hora.innerText = h+":00";
+        calendar.appendChild(hora);
+
+        dias.forEach(()=>{
+            const c = document.createElement("div");
+            c.className = "cell disponivel";
+            calendar.appendChild(c);
+        });
+    }
+}
+</script>
+
+</body>
+</html>
