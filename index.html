@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Agenda Dra. Maíra Vilela</title>
+<title>Agenda da Dra. Maíra Vilela</title>
 
 <style>
 body {
@@ -28,6 +28,7 @@ header img {
     border-radius: 50%;
     object-fit: cover;
     border: 4px solid white;
+    background: white;
 }
 
 header h1 {
@@ -112,21 +113,15 @@ button.action {
 /* ===== FICHÁRIO ===== */
 .ficha {
     background: #f7f9fc;
-    border-left: 5px solid #1e90ff;
+    border-left: 6px solid #1e90ff;
     padding: 15px;
     border-radius: 6px;
     margin-bottom: 15px;
 }
 
 .ficha h4 {
-    margin: 0 0 10px 0;
+    margin: 0 0 10px;
     color: #1e90ff;
-}
-
-.ficha img {
-    max-width: 120px;
-    margin: 5px;
-    border-radius: 6px;
 }
 </style>
 </head>
@@ -134,7 +129,7 @@ button.action {
 <body>
 
 <header>
-    img/dra_mairavilela.jpg
+    <img src="img/dra_mairavilela.jpg" alt="Dra. Maíra Vilela">
     <div>
         <h1>Dra. Maíra Vilela</h1>
         <p>Cirurgiã Vascular</p>
@@ -144,15 +139,15 @@ button.action {
 </header>
 
 <nav>
-    <button onclick="mostrar('agenda')">Agenda</button>
-    <button onclick="mostrar('loginProntuario')">Prontuários</button>
+    <button onclick="abrirAgenda()">Agenda</button>
+    <button onclick="abrirLoginProntuario()">Prontuários</button>
 </nav>
 
 <main>
 
 <!-- ✅ AGENDA -->
 <section id="agenda" class="active">
-    <h2>📅 Agenda – Dra. Maíra Vilela</h2>
+    <h2>📅 Agenda da Dra. Maíra Vilela</h2>
 
     <label>Senha da Agenda</label>
     <input type="password" id="senhaAgenda">
@@ -161,7 +156,7 @@ button.action {
 
 <!-- ✅ LOGIN PRONTUÁRIO -->
 <section id="loginProntuario">
-    <h2>🔐 Acesso ao Prontuário</h2>
+    <h2>🔐 Acesso aos Prontuários</h2>
 
     <label>Senha do Prontuário</label>
     <input type="password" id="senhaProntuario">
@@ -175,17 +170,6 @@ button.action {
     <label>ID do Paciente</label>
     <input id="idPaciente">
 
-    <label>Nome</label>
-    <input id="nomePaciente">
-
-    <label>Telefone 1</label>
-    <input id="telefone1">
-
-    <label>Telefone 2</label>
-    <input id="telefone2">
-
-    <hr>
-
     <label>Data</label>
     <input type="date" id="dataRegistro">
 
@@ -197,9 +181,6 @@ button.action {
 
     <label>Tratamento</label>
     <textarea id="tratamento"></textarea>
-
-    <label>Fotos</label>
-    <input type="file" id="fotos" multiple>
 
     <button class="action" onclick="salvarProntuario()">Salvar Prontuário</button>
 
@@ -214,25 +195,72 @@ button.action {
 const SENHA_AGENDA = "agenda123";
 const SENHA_PRONTUARIO = "prontuario123";
 
-function mostrar(id) {
+function esconderTudo() {
     document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
-    document.getElementById(id).classList.add("active");
+}
+
+function abrirAgenda() {
+    esconderTudo();
+    document.getElementById("agenda").classList.add("active");
+}
+
+function abrirLoginProntuario() {
+    esconderTudo();
+    document.getElementById("loginProntuario").classList.add("active");
 }
 
 function acessarAgenda() {
     if (senhaAgenda.value === SENHA_AGENDA) {
         alert("Agenda liberada.");
     } else {
-        alert("Senha da agenda incorreta.");
+        alert("Senha incorreta.");
     }
 }
 
 function liberarProntuario() {
     if (senhaProntuario.value === SENHA_PRONTUARIO) {
-        mostrar("prontuario");
+        esconderTudo();
+        document.getElementById("prontuario").classList.add("active");
         carregarHistorico();
     } else {
-        alert("Senha do prontuário incorreta.");
+        alert("Senha incorreta.");
     }
 }
 
+function salvarProntuario() {
+    const id = idPaciente.value.trim();
+    if (!id) return alert("Informe o ID do paciente.");
+
+    let dados = JSON.parse(localStorage.getItem(id)) || [];
+    dados.push({
+        data: dataRegistro.value,
+        sintomas: sintomas.value,
+        diagnostico: diagnostico.value,
+        tratamento: tratamento.value
+    });
+
+    dados.sort((a,b)=>b.data.localeCompare(a.data));
+    localStorage.setItem(id, JSON.stringify(dados));
+    carregarHistorico();
+}
+
+function carregarHistorico() {
+    const id = idPaciente.value;
+    const div = document.getElementById("historico");
+    div.innerHTML = "";
+    const dados = JSON.parse(localStorage.getItem(id)) || [];
+
+    dados.forEach(r => {
+        const f = document.createElement("div");
+        f.className = "ficha";
+        f.innerHTML = `<h4>${r.data}</h4>
+                       <strong>Sintomas:</strong> ${r.sintomas}<br>
+                       <strong>Diagnóstico:</strong> ${r.diagnostico}<br>
+                       <strong>Tratamento:</strong> ${r.tratamento}`;
+        div.appendChild(f);
+    });
+}
+</script>
+
+</body>
+</html>
