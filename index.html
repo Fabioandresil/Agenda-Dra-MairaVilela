@@ -7,92 +7,78 @@
 <style>
 body {
     margin: 0;
-    font-family: "Segoe UI", Arial, sans-serif;
+    font-family: Arial, sans-serif;
     background: #f2f6fa;
-    color: #2c3e50;
 }
 
 /* HEADER */
 header {
-    background: linear-gradient(135deg, #1e90ff, #1c5fa8);
-    color: white;
-    padding: 30px;
-    display: flex;
-    align-items: center;
-    gap: 25px;
+    background: linear-gradient(135deg,#1e90ff,#1c5fa8);
+    color:white;
+    padding:30px;
+    display:flex;
+    gap:25px;
+    align-items:center;
+}
+header img{
+    width:120px;height:120px;border-radius:50%;
+    border:4px solid white;object-fit:cover;
 }
 
-header img {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 4px solid white;
-    background: white;
+/* MENU */
+nav{
+    background:white;
+    padding:15px;
+    display:flex;
+    justify-content:center;
+    gap:20px;
+    box-shadow:0 2px 5px rgba(0,0,0,.1);
+}
+nav button{
+    padding:10px 20px;
+    background:#1e90ff;color:white;border:none;
+    border-radius:20px;cursor:pointer;
 }
 
-nav {
-    background: white;
-    padding: 15px;
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-    box-shadow: 0 2px 6px rgba(0,0,0,.1);
+main{padding:30px}
+
+/* SEÇÕES */
+section{
+    display:none;
+    background:white;
+    padding:25px;
+    max-width:950px;
+    margin:auto;
+    border-radius:10px;
+    box-shadow:0 4px 10px rgba(0,0,0,.08)
 }
+section.active{display:block}
 
-nav button {
-    padding: 10px 22px;
-    border: none;
-    background: #1e90ff;
-    color: white;
-    border-radius: 25px;
-    cursor: pointer;
+label{display:block;margin-top:10px}
+input,textarea{width:100%;padding:8px}
+button.action{
+    margin-top:15px;
+    padding:10px;
+    background:#1e90ff;
+    border:none;color:white;border-radius:6px
 }
-
-main { padding: 30px; }
-
-section {
-    display: none;
-    background: white;
-    padding: 25px;
-    border-radius: 10px;
-    max-width: 900px;
-    margin: auto;
-    box-shadow: 0 4px 12px rgba(0,0,0,.08);
+.ficha{
+    background:#f7f9fc;
+    border-left:5px solid #1e90ff;
+    padding:12px;margin-top:10px;
+    border-radius:6px
 }
-
-section.active { display: block; }
-
-label { display: block; margin-top: 12px; }
-input, textarea { width: 100%; padding: 8px; }
-
-button.action {
-    margin-top: 20px;
-    padding: 10px 18px;
-    background: #1e90ff;
-    color: white;
-    border: none;
-    border-radius: 6px;
-}
-
-.ficha {
-    background: #f7f9fc;
-    border-left: 6px solid #1e90ff;
-    padding: 15px;
-    border-radius: 6px;
-    margin-bottom: 15px;
-}
+.ficha button{margin-top:10px}
 </style>
 </head>
 
 <body>
 
 <header>
-    <img src="img/dra_mairavilela.jpg" alt="Dra. Maíra Vilela">
+    <img src="img/dra_mairavilela.jpg">
     <div>
         <h1>Dra. Maíra Vilela</h1>
-        <p>Cirurgiã Vascular</p>
-        <p>Brasília – DF</p>
+        <p>Cirurgiã Vascular – Brasília</p>
         <p>(61) 98589‑5499</p>
     </div>
 </header>
@@ -106,119 +92,174 @@ button.action {
 
 <!-- LOGIN AGENDA -->
 <section id="agendaLogin" class="active">
-    <h2>Agenda da Dra. Maíra Vilela</h2>
-    <label>Senha da Agenda</label>
-    <input type="password" id="senhaAgenda">
-    <button class="action" onclick="liberarAgenda()">Entrar</button>
+<h2>Agenda da Dra. Maíra Vilela</h2>
+<label>Senha da Agenda</label>
+<input type="password" id="senhaAgenda">
+<button class="action" onclick="liberarAgenda()">Entrar</button>
 </section>
 
 <!-- AGENDA -->
 <section id="agenda">
-    <h2>📅 Agenda</h2>
-    <label>Data</label>
-    <input type="date">
-    <label>Horário</label>
-    <input type="time">
-    <label>Local / Clínica / Hospital</label>
-    <input>
-    <label>Observações</label>
-    <textarea></textarea>
-    <button class="action">Salvar Agendamento</button>
+<h2>📅 Agenda</h2>
+
+<label>CPF do Paciente</label>
+<input id="cpfAgenda">
+
+<label>Data do Atendimento</label>
+<input type="date" id="dataAgenda">
+
+<label>Horário</label>
+<input type="time">
+
+<label>Agendamentos Futuros</label>
+<input type="date" id="agendaFutura">
+
+<button class="action" onclick="salvarAgenda()">Salvar Agenda</button>
+
+<div id="agendaLista"></div>
 </section>
 
 <!-- LOGIN PRONTUÁRIO -->
 <section id="prontuarioLogin">
-    <h2>Acesso ao Prontuário</h2>
-    <label>Senha do Prontuário</label>
-    <input type="password" id="senhaProntuario">
-    <button class="action" onclick="liberarProntuario()">Entrar</button>
+<h2>🔐 Acesso ao Prontuário</h2>
+<label>Senha do Prontuário</label>
+<input type="password" id="senhaProntuario">
+<button class="action" onclick="liberarProntuario()">Entrar</button>
 </section>
 
 <!-- PRONTUÁRIO -->
 <section id="prontuario">
-    <h2>Prontuário do Paciente</h2>
+<h2>📁 Prontuário</h2>
 
-    <label>Nome do Paciente</label>
-    <input id="nomePaciente">
+<label>Nome do Paciente</label>
+<input id="nomePaciente">
 
-    <label>CPF</label>
-    <input id="cpfPaciente">
+<label>CPF</label>
+<input id="cpfPaciente">
 
-    <label>Data</label>
-    <input type="date" id="dataRegistro">
+<label>Data de Nascimento</label>
+<input type="date" id="dataNascimento">
 
-    <label>Sintomas</label>
-    <textarea id="sintomas"></textarea>
+<label>Peso (kg)</label>
+<input id="peso">
 
-    <label>Diagnóstico</label>
-    <textarea id="diagnostico"></textarea>
+<label>Altura (cm)</label>
+<input id="altura">
 
-    <label>Tratamento</label>
-    <textarea id="tratamento"></textarea>
+<label>Tipo Sanguíneo</label>
+<input id="tipoSangue">
 
-    <button class="action" onclick="salvarProntuario()">Salvar Prontuário</button>
+<label>Doenças Pré‑existentes</label>
+<textarea id="doencas"></textarea>
 
-    <h3>Histórico do Paciente</h3>
-    <div id="historico"></div>
+<hr>
+
+<label>Data de Atendimento</label>
+<input type="date" id="dataAtendimento">
+
+<label>Data de Retorno</label>
+<input type="date" id="dataRetorno">
+
+<label>Sintomas</label>
+<textarea id="sintomas"></textarea>
+
+<label>Diagnóstico</label>
+<textarea id="diagnostico"></textarea>
+
+<label>Tratamento</label>
+<textarea id="tratamento"></textarea>
+
+<button class="action" onclick="salvarProntuario()">Salvar Prontuário</button>
+
+<h3>📚 Histórico</h3>
+<div id="historico"></div>
 </section>
 
 </main>
 
 <script>
-const SENHA_AGENDA = "agenda123";
-const SENHA_PRONTUARIO = "prontuario123";
+const SENHA_AGENDA="agenda123",SENHA_PRONTUARIO="prontuario123";
 
 function mostrar(id){
-    document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
-    document.getElementById(id).classList.add("active");
+document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
+document.getElementById(id).classList.add("active");
 }
 
 function liberarAgenda(){
-    if(senhaAgenda.value === SENHA_AGENDA){
-        mostrar("agenda");
-    } else alert("Senha incorreta");
+if(senhaAgenda.value===SENHA_AGENDA)mostrar("agenda");else alert("Senha incorreta");
 }
 
 function liberarProntuario(){
-    if(senhaProntuario.value === SENHA_PRONTUARIO){
-        mostrar("prontuario");
-    } else alert("Senha incorreta");
+if(senhaProntuario.value===SENHA_PRONTUARIO)mostrar("prontuario");else alert("Senha incorreta");
+}
+
+function salvarAgenda(){
+const cpf=cpfAgenda.value.replace(/\D/g,"");
+let lista=JSON.parse(localStorage.getItem("agenda")||"[]");
+lista.push({cpf,data:dataAgenda.value,retorno:agendaFutura.value});
+localStorage.setItem("agenda",JSON.stringify(lista));
+carregarAgenda();
+}
+
+function carregarAgenda(){
+let lista=JSON.parse(localStorage.getItem("agenda")||"[]");
+agendaLista.innerHTML="";
+lista.forEach(a=>{
+agendaLista.innerHTML+=`<div class="ficha">
+<b>CPF:</b> ${a.cpf}<br>
+<b>Data:</b> ${a.data}<br>
+<b>Retorno:</b> ${a.retorno}
+</div>`;
+});
 }
 
 function salvarProntuario(){
-    const cpf = cpfPaciente.value.replace(/\D/g,'');
-    if(!cpf) return alert("Informe o CPF");
+const cpf=cpfPaciente.value.replace(/\D/g,"");
+const id="paciente_"+cpf;
+let dados=JSON.parse(localStorage.getItem(id)||"[]");
 
-    const id = "paciente_"+cpf;
-    let dados = JSON.parse(localStorage.getItem(id)) || [];
+dados.push({
+data:dataAtendimento.value,
+retorno:dataRetorno.value,
+sintomas:sintomas.value,
+diagnostico:diagnostico.value,
+tratamento:tratamento.value
+});
 
-    dados.push({
-        data: dataRegistro.value,
-        nome: nomePaciente.value,
-        sintomas: sintomas.value,
-        diagnostico: diagnostico.value,
-        tratamento: tratamento.value
-    });
+dados.sort((a,b)=>b.data.localeCompare(a.data));
+localStorage.setItem(id,JSON.stringify(dados));
 
-    dados.sort((a,b)=>b.data.localeCompare(a.data));
-    localStorage.setItem(id, JSON.stringify(dados));
-    carregarHistorico(id);
+let pacientes=JSON.parse(localStorage.getItem("pacientes")||"{}");
+pacientes[id]={nome:nomePaciente.value,nasc:dataNascimento.value,peso,altura,tipoSangue,doencas};
+localStorage.setItem("pacientes",JSON.stringify(pacientes));
+
+carregarHistorico(id);
 }
 
 function carregarHistorico(id){
-    const div = document.getElementById("historico");
-    div.innerHTML="";
-    const dados = JSON.parse(localStorage.getItem(id))||[];
-    dados.forEach(r=>{
-        div.innerHTML += `<div class="ficha">
-            <strong>${r.data}</strong><br>
-            <b>Sintomas:</b> ${r.sintomas}<br>
-            <b>Diagnóstico:</b> ${r.diagnostico}<br>
-            <b>Tratamento:</b> ${r.tratamento}
-        </div>`;
-    });
+let dados=JSON.parse(localStorage.getItem(id)||"[]");
+historico.innerHTML="";
+dados.forEach((r,i)=>{
+historico.innerHTML+=`<div class="ficha">
+<b>Atendimento:</b> ${r.data}<br>
+<b>Retorno:</b> ${r.retorno}<br>
+<b>Sintomas:</b> ${r.sintomas}<br>
+<b>Diagnóstico:</b> ${r.diagnostico}<br>
+<b>Tratamento:</b> ${r.tratamento}<br>
+<button onclick="editar(${i},'${id}')">Editar</button>
+</div>`;
+});
+}
+
+function editar(i,id){
+let dados=JSON.parse(localStorage.getItem(id));
+let r=dados[i];
+dataAtendimento.value=r.data;
+dataRetorno.value=r.retorno;
+sintomas.value=r.sintomas;
+diagnostico.value=r.diagnostico;
+tratamento.value=r.tratamento;
 }
 </script>
-
 </body>
 </html>
