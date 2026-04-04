@@ -183,6 +183,22 @@ function gerarAgenda(){
             calendar.appendChild(c);
         });
     }
+    
+const SENHA_PRONTUARIO = "prontuario123";
+
+function abrirLoginProntuario(){
+    mostrar("prontuarioLogin");
+}
+
+function entrarProntuario(){
+    const senha = document.getElementById("senhaProntuario").value;
+    if (senha === SENHA_PRONTUARIO) {
+        alert("Prontuário liberado (próximo passo será a tela completa)");
+    } else {
+        alert("Senha incorreta");
+    }
+}
+
 }
 </script>
 
