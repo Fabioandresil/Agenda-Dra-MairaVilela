@@ -2,384 +2,1385 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Agenda Médica – Dra. Maíra Vilela</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agenda – Dra. Maíra Vilela</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-/* ===================== BASE ===================== */
-body{
-  margin:0;
-  font-family:Arial, sans-serif;
-  background:#eef2f7;
-  color:#333;
-}
-header{
-  background:linear-gradient(135deg,#1e90ff,#1c5fa8);
-  color:white;
-  padding:25px;
-  display:flex;
-  gap:20px;
-  align-items:center;
-}
-header img{
-  width:100px;
-  height:100px;
-  border-radius:50%;
-  border:4px solid white;
-  object-fit:cover;
-}
-nav{
-  background:white;
-  padding:15px;
-  display:none;
-  justify-content:center;
-  gap:20px;
-  box-shadow:0 2px 5px rgba(0,0,0,.1);
-}
-nav button{
-  padding:10px 22px;
-  border-radius:20px;
-  border:none;
-  background:#1e90ff;
-  color:white;
-  cursor:pointer;
-}
-section{
-  max-width:1200px;
-  margin:30px auto;
-  background:white;
-  padding:25px;
-  border-radius:10px;
-  display:none;
-}
-section.active{display:block}
-h2{margin-top:0}
-
-/* ===================== FORM ===================== */
-label{display:block;margin-top:10px;font-weight:bold}
-input,textarea,select{
-  width:100%;
-  padding:8px;
-  margin-top:4px;
-}
-textarea{resize:vertical}
-button{
-  margin-top:15px;
-  padding:10px;
-  background:#1e90ff;
-  color:white;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-}
-button:disabled{
-  background:#aaa;
-  cursor:not-allowed;
+/* ===================== TOKENS ===================== */
+:root {
+  --navy:    #0f2b4a;
+  --blue:    #1a5fa8;
+  --blue-mid:#2277cc;
+  --sky:     #4fa3e3;
+  --teal:    #1a9e8f;
+  --teal-lt: #e6f7f5;
+  --cream:   #f8f5f0;
+  --white:   #ffffff;
+  --gray-50: #f9fafb;
+  --gray-100:#f0f2f5;
+  --gray-200:#e2e6ec;
+  --gray-400:#9aa5b4;
+  --gray-600:#5a6476;
+  --gray-800:#2d3748;
+  --red:     #e05252;
+  --red-lt:  #fdeaea;
+  --amber:   #d97706;
+  --amber-lt:#fef3c7;
+  --green:   #16a34a;
+  --green-lt:#dcfce7;
+  --orange:  #ea7c2b;
+  --orange-lt:#fef0e6;
+  --purple:  #7c3aed;
+  --purple-lt:#ede9fe;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
+  --shadow:    0 4px 16px rgba(0,0,0,.10);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,.14);
+  --radius:  12px;
+  --radius-lg:18px;
 }
 
-/* ===================== CALENDÁRIO ===================== */
-#calendar{
-  display:grid;
-  grid-template-columns:80px repeat(14,1fr);
-  gap:1px;
-  background:#ccc;
-  margin-top:20px;
-  font-size:12px;
+/* ===================== RESET ===================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--gray-800);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
 }
-.cell{
-  background:white;
-  min-height:40px;
-  text-align:center;
-  cursor:pointer;
-  padding:4px;
-}
-.hora{background:#f0f0f0;font-weight:bold}
-.header{background:#e0e0e0;font-weight:bold}
-
-/* STATUS */
-.disponivel{background:#e8f5e9}
-.consulta{background:#bbdefb}
-.sessao{background:#dcedc8}
-.cirurgia{background:#ffcdd2}
-.retorno{background:#ffe0b2}
-.bloqueado{background:#e0e0e0}
-.ausente{background:#ffccbc}
-.ferias{background:#cfd8dc}
-
-/* ===================== MODAL ===================== */
-#modal{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.4);
-}
-#modalBox{
-  background:white;
-  max-width:420px;
-  margin:8% auto;
-  padding:20px;
-  border-radius:10px;
-}
-</style>
-</head>
-
-<body>
-
-<header>
-  <img src="img/dra_mairavilela.jpg" alt="Dra. Maíra Vilela">
-  <div>
-    <h1>Dra. Maíra Vilela</h1>
-    <p>Cirurgiã Vascular – Brasília</p>
-    <p>(61) 98589‑5499</p>
-  </div>
-</header>
-
-<nav id="menu">
-  <button onclick="show('agenda')">Agenda</button>
-  <button onclick="show('prontuario')">Prontuários</button>
-</nav>
-
-<!-- ===================== LOGIN ===================== -->
-<section id="login" class="active">
-  <h2>Acesso ao Sistema</h2>
-  <label>Perfil</label>
-  <select id="perfil">
-    <option value="dra">Dra. Maíra</option>
-    <option value="secretaria">Secretária</option>
-  </select>
-  <label>Senha</label>
-  <input type="password" id="senha">
-  <button onclick="login()">Entrar</button>
-</section>
-
-<!-- ===================== AGENDA ===================== -->
-<section id="agenda">
-  <h2>📅 Agenda – Próximas 2 semanas</h2>
-  <div id="calendar"></div>
-</section>
-
-<!-- ===================== PRONTUÁRIO ===================== -->
-<section id="prontuario">
-<h2>📁 Prontuário do Paciente</h2>
-
-<h3>Dados do Paciente</h3>
-<label>Nome</label><input id="p_nome">
-<label>CPF</label><input id="p_cpf">
-<label>Data de nascimento</label><input type="date" id="p_nasc">
-<label>Peso (kg)</label><input id="p_peso">
-<label>Altura (cm)</label><input id="p_altura">
-<label>Tipo sanguíneo</label><input id="p_sangue">
-<label>Doenças pré‑existentes</label><textarea id="p_doencas"></textarea>
-
-<hr>
-
-<h3>Novo Atendimento</h3>
-<label>Data de atendimento</label><input type="date" id="a_data">
-
-<label>Tipo</label>
-<select id="a_tipo" onchange="toggleCirurgia()">
-  <option value="consulta">Consulta</option>
-  <option value="sessao">Sessão</option>
-  <option value="cirurgia">Cirurgia</option>
-</select>
-
-<label>Observações clínicas</label><textarea id="a_obs"></textarea>
-
-<label>Data de retorno</label><input type="date" id="a_retorno">
-
-<div id="cirurgiaCampos" style="display:none">
-  <h4>Dados da Cirurgia</h4>
-  <label>Hospital</label><input id="c_hospital">
-  <label>Médico principal</label><input id="c_principal">
-  <label>Médico assistente</label><input id="c_assistente">
-  <label>Plano de saúde</label><input id="c_plano">
-</div>
-
-<h3>💰 Financeiro</h3>
-<label>Valor base (PIX)</label><input type="number" id="f_valor">
-
-<label>Forma de pagamento</label>
-<select id="f_pagamento" onchange="calcularPagamento()">
-  <option value="pix">PIX</option>
-  <option value="3x">3x (+3%)</option>
-  <option value="6x">6x (+5%)</option>
-  <option value="10x">10x (+10%)</option>
-</select>
-
-<p id="resultadoPagamento"></p>
-
-<label>Status do pagamento</label>
-<select id="f_status">
-  <option value="nao">Não pago</option>
-  <option value="sim">Pago</option>
-</select>
-
-<button onclick="salvarProntuario()">Salvar Atendimento</button>
-
-<hr>
-<h3>📚 Histórico</h3>
-<div id="historico"></div>
-</section>
-
-<!-- ===================== MODAL AGENDA ===================== -->
-<div id="modal">
-  <div id="modalBox">
-    <h3>Editar Horário</h3>
-    <label>Status</label>
-    <select id="m_status">
-      <option value="disponivel">Disponível</option>
-      <option value="consulta">Consulta</option>
-      <option value="sessao">Sessão</option>
-      <option value="cirurgia">Cirurgia</option>
-      <option value="retorno">Retorno</option>
-      <option value="bloqueado">Bloqueado</option>
-      <option value="ausente">Ausente</option>
-      <option value="ferias">Férias</option>
-    </select>
-    <label>Local</label>
-    <select id="m_local">
-      <option>Clínica Life</option>
-      <option>Outra clínica</option>
-      <option>Hospital</option>
-    </select>
-    <label>CPF do paciente (se houver)</label>
-    <input id="m_cpf">
-    <button onclick="salvarSlot()">Salvar</button>
-    <button onclick="fecharModal()">Cancelar</button>
-  </div>
-</div>
-
-<script>
-/* ===================== ESTADO ===================== */
-let perfilAtual=null;
-let slotAtual=null;
 
 /* ===================== LOGIN ===================== */
-function show(id){
- document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
- document.getElementById(id).classList.add("active");
+#loginScreen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, var(--navy) 0%, #1a3d6e 50%, #0d4a5c 100%);
+  position: relative;
+  overflow: hidden;
 }
-function login(){
- const p=perfil.value,s=senha.value;
- if((p==="dra"&&s==="dra123")||(p==="secretaria"&&s==="secretaria123")){
-   perfilAtual=p;
-   menu.style.display="flex";
-   aplicarPermissoes();
-   show("agenda");
-   renderAgenda();
- }else alert("Senha incorreta");
+#loginScreen::before {
+  content: '';
+  position: absolute;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(74,163,227,.15) 0%, transparent 70%);
+  top: -200px; right: -100px;
 }
-function aplicarPermissoes(){
- if(perfilAtual==="secretaria"){
-  a_obs.disabled=true;
-  f_valor.disabled=true;
-  f_pagamento.disabled=true;
-  f_status.disabled=true;
-  cirurgiaCampos.style.display="none";
- }
+#loginScreen::after {
+  content: '';
+  position: absolute;
+  width: 400px; height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(26,158,143,.12) 0%, transparent 70%);
+  bottom: -100px; left: -100px;
+}
+.login-card {
+  background: rgba(255,255,255,.97);
+  border-radius: 24px;
+  padding: 48px 44px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  z-index: 1;
+  animation: fadeUp .5s ease;
+}
+.login-card .logo-area {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.login-card .logo-area img {
+  width: 88px; height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid var(--blue);
+  box-shadow: 0 0 0 6px rgba(26,95,168,.12);
+  margin-bottom: 14px;
+}
+.login-card .logo-area h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  color: var(--navy);
+  font-weight: 700;
+}
+.login-card .logo-area p {
+  color: var(--gray-600);
+  font-size: .85rem;
+  margin-top: 2px;
+}
+.login-divider {
+  text-align: center;
+  color: var(--gray-400);
+  font-size: .75rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+  position: relative;
+}
+.login-divider::before, .login-divider::after {
+  content: '';
+  position: absolute;
+  top: 50%; width: 38%;
+  height: 1px; background: var(--gray-200);
+}
+.login-divider::before { left: 0; }
+.login-divider::after  { right: 0; }
+
+.profile-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.profile-btn {
+  padding: 14px 10px;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius);
+  background: var(--white);
+  cursor: pointer;
+  text-align: center;
+  transition: all .2s;
+  font-family: 'DM Sans', sans-serif;
+}
+.profile-btn .icon { font-size: 1.6rem; display: block; margin-bottom: 4px; }
+.profile-btn .lbl  { font-size: .8rem; color: var(--gray-600); font-weight: 500; }
+.profile-btn.active {
+  border-color: var(--blue);
+  background: #eef4fb;
+}
+.profile-btn:hover { border-color: var(--sky); }
+
+.form-group { margin-bottom: 18px; }
+.form-group label {
+  display: block;
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--gray-600);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.form-group input, .form-group select {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  font-family: 'DM Sans', sans-serif;
+  font-size: .9rem;
+  color: var(--gray-800);
+  background: var(--white);
+  transition: border-color .2s;
+  outline: none;
+}
+.form-group input:focus, .form-group select:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(26,95,168,.1);
+}
+.btn-primary {
+  width: 100%;
+  padding: 13px;
+  background: linear-gradient(135deg, var(--blue), var(--blue-mid));
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-family: 'DM Sans', sans-serif;
+  font-size: .95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  box-shadow: 0 4px 14px rgba(26,95,168,.35);
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(26,95,168,.4);
+}
+.login-error {
+  color: var(--red);
+  font-size: .82rem;
+  text-align: center;
+  margin-top: 10px;
+  display: none;
 }
 
-/* ===================== FINANCEIRO ===================== */
-function calcularPagamento(){
- let v=Number(f_valor.value),f=1,p=1;
- if(f_pagamento.value==="3x"){f=1.03;p=3}
- if(f_pagamento.value==="6x"){f=1.05;p=6}
- if(f_pagamento.value==="10x"){f=1.10;p=10}
- let total=(v*f).toFixed(2);
- resultadoPagamento.innerText=
- `Total R$ ${total} — ${p}x de R$ ${(total/p).toFixed(2)}`;
+/* ===================== APP SHELL ===================== */
+#app { display: none; min-height: 100vh; }
+
+/* SIDEBAR */
+.sidebar {
+  position: fixed;
+  left: 0; top: 0; bottom: 0;
+  width: 240px;
+  background: var(--navy);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  transition: transform .3s;
+}
+.sidebar-brand {
+  padding: 24px 20px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.sidebar-brand .doc-name {
+  font-family: 'Playfair Display', serif;
+  color: white;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.sidebar-brand .doc-sub {
+  color: var(--sky);
+  font-size: .72rem;
+  margin-top: 2px;
+}
+.sidebar-nav {
+  flex: 1;
+  padding: 16px 12px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: rgba(255,255,255,.6);
+  cursor: pointer;
+  transition: all .2s;
+  font-size: .88rem;
+  font-weight: 500;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  margin-bottom: 2px;
+}
+.nav-item .ni { font-size: 1.1rem; }
+.nav-item:hover { background: rgba(255,255,255,.08); color: white; }
+.nav-item.active { background: var(--blue); color: white; }
+
+.sidebar-footer {
+  padding: 16px 12px;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+.user-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,.06);
+  border-radius: 8px;
+}
+.user-pill .avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--blue);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .85rem; color: white; font-weight: 600;
+}
+.user-pill .uname { color: rgba(255,255,255,.85); font-size: .82rem; font-weight: 500; }
+.user-pill .urole { color: rgba(255,255,255,.45); font-size: .72rem; }
+.btn-logout {
+  background: none; border: none; cursor: pointer;
+  color: rgba(255,255,255,.4);
+  font-size: 1rem;
+  margin-left: auto;
+  transition: color .2s;
+}
+.btn-logout:hover { color: var(--red); }
+
+/* MAIN */
+.main-area {
+  margin-left: 240px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.topbar {
+  background: white;
+  border-bottom: 1px solid var(--gray-200);
+  padding: 0 28px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky; top: 0; z-index: 50;
+  box-shadow: var(--shadow-sm);
+}
+.topbar-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  color: var(--navy);
+  font-weight: 600;
+}
+.topbar-date {
+  color: var(--gray-400);
+  font-size: .82rem;
+}
+.content {
+  flex: 1;
+  padding: 28px;
 }
 
-/* ===================== PRONTUÁRIO ===================== */
-function toggleCirurgia(){
- cirurgiaCampos.style.display = a_tipo.value==="cirurgia" ? "block" : "none";
+/* ===================== PÁGINAS ===================== */
+.page { display: none; animation: fadeUp .3s ease; }
+.page.active { display: block; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-function salvarProntuario(){
- if(perfilAtual!=="dra"){alert("Apenas a médica pode salvar.");return;}
- const cpf=p_cpf.value.replace(/\D/g,"");
- const id="pac_"+cpf;
- let dados=JSON.parse(localStorage.getItem(id)||"[]");
 
- dados.push({
-   data:a_data.value,
-   tipo:a_tipo.value,
-   obs:a_obs.value,
-   retorno:a_retorno.value,
-   financeiro:{
-     valor:f_valor.value,
-     forma:f_pagamento.value,
-     status:f_status.value
-   }
- });
- localStorage.setItem(id,JSON.stringify(dados));
- if(a_retorno.value){
-  let r=JSON.parse(localStorage.getItem("agendaRetornos")||"{}");
-  r[a_retorno.value+"_9"]=cpf;
-  localStorage.setItem("agendaRetornos",JSON.stringify(r));
- }
- renderHistorico(id);
- alert("Atendimento salvo.");
+/* CARDS */
+.card {
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--gray-200);
+  padding: 24px;
+  margin-bottom: 20px;
 }
-function renderHistorico(id){
- historico.innerHTML="";
- let arr=JSON.parse(localStorage.getItem(id)||"[]");
- arr.forEach((h,i)=>{
-  historico.innerHTML+=`<div>
-    <b>${h.data}</b> – ${h.tipo} – R$ ${h.financeiro.valor}
-  </div>`;
- });
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem;
+  color: var(--navy);
+  font-weight: 600;
+}
+.card-sub {
+  color: var(--gray-400);
+  font-size: .78rem;
+  margin-top: 2px;
 }
 
 /* ===================== AGENDA ===================== */
-function renderAgenda(){
- const cal=document.getElementById("calendar");
- cal.innerHTML="";
- const hoje=new Date();
- const slots=JSON.parse(localStorage.getItem("agendaSlots")||"{}");
- const ret=JSON.parse(localStorage.getItem("agendaRetornos")||"{}");
- const dias=[...Array(14)].map((_,i)=>new Date(hoje.getFullYear(),hoje.getMonth(),hoje.getDate()+i));
+.agenda-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.btn-sm {
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 1.5px solid var(--gray-200);
+  background: white;
+  color: var(--gray-600);
+  cursor: pointer;
+  font-size: .82rem;
+  font-weight: 500;
+  transition: all .18s;
+  font-family: 'DM Sans', sans-serif;
+}
+.btn-sm:hover, .btn-sm.active { border-color: var(--blue); color: var(--blue); background: #eef4fb; }
+.btn-sm.primary { background: var(--blue); color: white; border-color: var(--blue); }
+.btn-sm.primary:hover { background: var(--blue-mid); }
 
- cal.appendChild(document.createElement("div"));
- dias.forEach(d=>{
-  let h=document.createElement("div");
-  h.className="cell header";
-  h.innerText=d.toLocaleDateString("pt-BR",{weekday:"short",day:"2-digit",month:"2-digit"});
-  cal.appendChild(h);
- });
+.legend {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: .75rem;
+  color: var(--gray-600);
+}
+.legend-dot {
+  width: 10px; height: 10px;
+  border-radius: 3px;
+}
 
- for(let h=8;h<=18;h++){
-  let hh=document.createElement("div");
-  hh.className="cell hora";hh.innerText=h+":00";
-  cal.appendChild(hh);
-  dias.forEach(d=>{
-    let key=d.toISOString().slice(0,10)+"_"+h;
-    let c=document.createElement("div");
-    if(ret[key]){
-      c.className="cell retorno";
-      c.innerText="Retorno";
-    }else if(slots[key]){
-      c.className="cell "+slots[key].status;
-      c.innerText=slots[key].cpf||"";
-    }else{
-      c.className="cell disponivel";
-    }
-    c.onclick=()=>abrirModal(key);
-    cal.appendChild(c);
+.cal-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--gray-200); }
+#calendar {
+  display: grid;
+  min-width: 900px;
+  font-size: 11.5px;
+}
+.cal-head-row {
+  display: contents;
+}
+.cal-time-col { width: 64px; }
+.cal-day-header {
+  background: var(--navy);
+  color: white;
+  text-align: center;
+  padding: 10px 4px;
+  font-weight: 600;
+  font-size: .75rem;
+  border-right: 1px solid rgba(255,255,255,.08);
+}
+.cal-day-header.weekend { background: #1a3554; }
+.cal-day-header.today   { background: var(--blue); }
+.cal-time {
+  background: var(--gray-50);
+  border-right: 1px solid var(--gray-200);
+  border-bottom: 1px solid var(--gray-100);
+  text-align: center;
+  padding: 6px 2px;
+  color: var(--gray-400);
+  font-size: .72rem;
+  font-weight: 500;
+}
+.cal-cell {
+  border-right: 1px solid var(--gray-100);
+  border-bottom: 1px solid var(--gray-100);
+  min-height: 44px;
+  cursor: pointer;
+  padding: 4px 5px;
+  transition: filter .15s;
+  position: relative;
+  overflow: hidden;
+}
+.cal-cell:hover { filter: brightness(.93); }
+.cal-cell.weekend { background: #fafafa !important; }
+.cal-cell .cell-label {
+  font-size: .7rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cal-cell .cell-sub {
+  font-size: .65rem;
+  opacity: .7;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* status colors */
+.s-disponivel { background: #f0fdf4; }
+.s-consulta   { background: #eff6ff; border-left: 3px solid var(--blue); }
+.s-sessao     { background: #f0fdf4; border-left: 3px solid var(--teal); }
+.s-cirurgia   { background: var(--red-lt); border-left: 3px solid var(--red); }
+.s-retorno    { background: var(--amber-lt); border-left: 3px solid var(--amber); }
+.s-bloqueado  { background: var(--gray-100); }
+.s-ausente    { background: #fff3e0; }
+.s-ferias     { background: #f3e8ff; }
+
+/* ===================== FORMS ===================== */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-grid.full { grid-template-columns: 1fr; }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label {
+  font-size: .75rem;
+  font-weight: 600;
+  color: var(--gray-600);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.field input, .field select, .field textarea {
+  padding: 9px 12px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .88rem;
+  color: var(--gray-800);
+  background: white;
+  outline: none;
+  transition: border-color .18s;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(26,95,168,.08);
+}
+.field input:disabled, .field select:disabled, .field textarea:disabled {
+  background: var(--gray-50);
+  color: var(--gray-400);
+  cursor: not-allowed;
+}
+.field textarea { resize: vertical; min-height: 80px; }
+
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0 16px;
+}
+.section-divider h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: .95rem;
+  color: var(--navy);
+  white-space: nowrap;
+}
+.section-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--gray-200);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: .72rem;
+  font-weight: 600;
+}
+.tag-blue   { background: #dbeafe; color: var(--blue); }
+.tag-green  { background: var(--green-lt); color: var(--green); }
+.tag-red    { background: var(--red-lt); color: var(--red); }
+.tag-amber  { background: var(--amber-lt); color: var(--amber); }
+.tag-teal   { background: var(--teal-lt); color: var(--teal); }
+.tag-purple { background: var(--purple-lt); color: var(--purple); }
+
+/* ===================== BUSCA PACIENTE ===================== */
+.search-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.search-bar input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .88rem;
+  outline: none;
+  transition: border-color .18s;
+}
+.search-bar input:focus { border-color: var(--blue); }
+
+/* ===================== HISTÓRICO ===================== */
+.hist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--gray-100);
+}
+.hist-item:last-child { border-bottom: none; }
+.hist-icon {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+.hist-body { flex: 1; }
+.hist-type { font-weight: 600; color: var(--navy); font-size: .88rem; }
+.hist-date { color: var(--gray-400); font-size: .75rem; margin-top: 1px; }
+.hist-detail { color: var(--gray-600); font-size: .8rem; margin-top: 4px; line-height: 1.4; }
+.hist-fin { font-size: .78rem; margin-top: 4px; }
+
+/* ===================== FINANCEIRO ===================== */
+.fin-result {
+  background: linear-gradient(135deg, #eef4fb, #e6f7f5);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-top: 8px;
+  border: 1px solid var(--gray-200);
+}
+.fin-result .total { font-size: 1.2rem; font-weight: 700; color: var(--navy); }
+.fin-result .parcela { font-size: .82rem; color: var(--gray-600); margin-top: 2px; }
+
+/* ===================== MODAL ===================== */
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(10,20,40,.5);
+  z-index: 200;
+  backdrop-filter: blur(4px);
+  align-items: center;
+  justify-content: center;
+}
+.overlay.open { display: flex; }
+.modal-box {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  width: 100%;
+  max-width: 460px;
+  box-shadow: var(--shadow-lg);
+  animation: fadeUp .25s ease;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal-box h3 {
+  font-family: 'Playfair Display', serif;
+  color: var(--navy);
+  font-size: 1.05rem;
+  margin-bottom: 20px;
+}
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  justify-content: flex-end;
+}
+.btn-ghost {
+  padding: 9px 18px;
+  border-radius: 8px;
+  border: 1.5px solid var(--gray-200);
+  background: white;
+  color: var(--gray-600);
+  cursor: pointer;
+  font-size: .88rem;
+  font-weight: 500;
+  font-family: 'DM Sans', sans-serif;
+  transition: all .18s;
+}
+.btn-ghost:hover { border-color: var(--gray-400); }
+.btn-action {
+  padding: 9px 20px;
+  border-radius: 8px;
+  border: none;
+  background: var(--blue);
+  color: white;
+  cursor: pointer;
+  font-size: .88rem;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  transition: all .18s;
+}
+.btn-action:hover { background: var(--blue-mid); }
+
+/* ===================== TOAST ===================== */
+#toast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  background: var(--navy);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: .85rem;
+  font-weight: 500;
+  z-index: 999;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all .3s;
+  pointer-events: none;
+}
+#toast.show { opacity: 1; transform: translateY(0); }
+
+/* ===================== VAZIO ===================== */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--gray-400);
+}
+.empty-state .icon { font-size: 2.5rem; margin-bottom: 10px; }
+.empty-state p { font-size: .88rem; }
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main-area { margin-left: 0; }
+  .content { padding: 16px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .hamburger { display: flex !important; }
+}
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  flex-direction: column;
+  gap: 4px;
+}
+.hamburger span {
+  display: block;
+  width: 22px; height: 2px;
+  background: var(--gray-600);
+  border-radius: 2px;
+}
+.overlay-sidebar {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.4);
+  z-index: 99;
+}
+.overlay-sidebar.open { display: block; }
+</style>
+</head>
+<body>
+
+<!-- ===================== LOGIN ===================== -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="logo-area">
+      <img src="img/dra_mairavilela.jpg" alt="Dra. Maíra Vilela" onerror="this.src='https://ui-avatars.com/api/?name=MV&background=1a5fa8&color=fff&size=88'">
+      <h1>Dra. Maíra Vilela</h1>
+      <p>Cirurgiã Vascular • Brasília</p>
+    </div>
+    <div class="login-divider">Selecione o perfil</div>
+    <div class="profile-selector">
+      <div class="profile-btn active" id="pBtn-dra" onclick="selectPerfil('dra')">
+        <span class="icon">👩‍⚕️</span>
+        <span class="lbl">Dra. Maíra</span>
+      </div>
+      <div class="profile-btn" id="pBtn-secretaria" onclick="selectPerfil('secretaria')">
+        <span class="icon">💼</span>
+        <span class="lbl">Secretária</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Senha</label>
+      <input type="password" id="senhaInput" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')login()">
+    </div>
+    <button class="btn-primary" onclick="login()">Entrar</button>
+    <p class="login-error" id="loginError">Senha incorreta. Tente novamente.</p>
+  </div>
+</div>
+
+<!-- ===================== APP ===================== -->
+<div id="app">
+  <div class="overlay-sidebar" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="doc-name">Life Varizes</div>
+      <div class="doc-sub">Sistema de Gestão Clínica</div>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-item active" onclick="showPage('pgAgenda')">
+        <span class="ni">📅</span> Agenda
+      </button>
+      <button class="nav-item" onclick="showPage('pgProntuario')">
+        <span class="ni">📁</span> Prontuários
+      </button>
+      <button class="nav-item" id="navFinanceiro" onclick="showPage('pgFinanceiro')">
+        <span class="ni">💰</span> Financeiro
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-pill">
+        <div class="avatar" id="userAvatar">MV</div>
+        <div>
+          <div class="uname" id="userName">Dra. Maíra</div>
+          <div class="urole" id="userRole">Médica</div>
+        </div>
+        <button class="btn-logout" onclick="logout()" title="Sair">⏻</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-area">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+          <span></span><span></span><span></span>
+        </button>
+        <div>
+          <div class="topbar-title" id="topbarTitle">Agenda</div>
+          <div class="topbar-date" id="topbarDate"></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px" id="topbarActions"></div>
+    </div>
+
+    <div class="content">
+
+      <!-- ========== PÁGINA: AGENDA ========== -->
+      <div class="page active" id="pgAgenda">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Agenda Semanal</div>
+              <div class="card-sub">Próximas 2 semanas • Clínica Life Varizes</div>
+            </div>
+            <div class="agenda-controls">
+              <button class="btn-sm" onclick="renderAgenda(-7)">‹ Anterior</button>
+              <button class="btn-sm primary" onclick="irHoje()">Hoje</button>
+              <button class="btn-sm" onclick="renderAgenda(7)">Próxima ›</button>
+            </div>
+          </div>
+          <div class="legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#bbf7d0"></div>Disponível</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#bfdbfe"></div>Consulta</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#bbf7d0;border-left:3px solid #1a9e8f"></div>Sessão</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#fecaca"></div>Cirurgia</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#fde68a"></div>Retorno</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#e5e7eb"></div>Bloqueado</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#ddd6fe"></div>Férias</div>
+          </div>
+          <div class="cal-wrap">
+            <div id="calendar"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== PÁGINA: PRONTUÁRIO ========== -->
+      <div class="page" id="pgProntuario">
+        <!-- Busca -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Buscar Paciente</div>
+          </div>
+          <div class="search-bar">
+            <input id="buscarCPF" placeholder="Digite o CPF do paciente (somente números)" maxlength="14" oninput="mascaraCPF(this)">
+            <button class="btn-sm primary" onclick="buscarPaciente()">Buscar</button>
+            <button class="btn-sm" onclick="novoRegistro()">+ Novo</button>
+          </div>
+          <div id="buscaStatus" style="color:var(--gray-400);font-size:.82rem"></div>
+        </div>
+
+        <!-- Dados do Paciente -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Dados do Paciente</div>
+            <span class="tag tag-blue" id="pacStatusTag">Novo registro</span>
+          </div>
+          <div class="form-grid">
+            <div class="field"><label>Nome completo</label><input id="p_nome" placeholder="Nome do paciente"></div>
+            <div class="field"><label>CPF</label><input id="p_cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)"></div>
+            <div class="field"><label>Data de nascimento</label><input type="date" id="p_nasc"></div>
+            <div class="field"><label>Tipo sanguíneo</label>
+              <select id="p_sangue">
+                <option value="">—</option>
+                <option>A+</option><option>A-</option>
+                <option>B+</option><option>B-</option>
+                <option>AB+</option><option>AB-</option>
+                <option>O+</option><option>O-</option>
+              </select>
+            </div>
+            <div class="field"><label>Peso (kg)</label><input id="p_peso" type="number" placeholder="0"></div>
+            <div class="field"><label>Altura (cm)</label><input id="p_altura" type="number" placeholder="0"></div>
+          </div>
+          <div class="field" style="margin-top:12px"><label>Doenças pré-existentes / Alergias</label><textarea id="p_doencas" placeholder="Ex: hipertensão, diabetes, alergia a dipirona…"></textarea></div>
+          <button class="btn-sm primary" style="margin-top:14px" onclick="salvarPaciente()">Salvar dados do paciente</button>
+        </div>
+
+        <!-- Novo Atendimento -->
+        <div class="card">
+          <div class="card-title" style="margin-bottom:20px">Novo Atendimento</div>
+          <div class="form-grid">
+            <div class="field"><label>Data do atendimento</label><input type="date" id="a_data"></div>
+            <div class="field"><label>Tipo</label>
+              <select id="a_tipo" onchange="toggleCirurgia()">
+                <option value="consulta">Consulta</option>
+                <option value="sessao">Sessão</option>
+                <option value="cirurgia">Cirurgia</option>
+                <option value="retorno">Retorno</option>
+              </select>
+            </div>
+          </div>
+          <div class="field" style="margin-top:12px"><label>Observações clínicas</label><textarea id="a_obs" placeholder="Anamnese, evolução, prescrições…"></textarea></div>
+          <div class="field" style="margin-top:12px"><label>Data de retorno</label><input type="date" id="a_retorno"></div>
+
+          <!-- Cirurgia -->
+          <div id="cirurgiaCampos" style="display:none">
+            <div class="section-divider"><h3>🏥 Dados da Cirurgia</h3></div>
+            <div class="form-grid">
+              <div class="field"><label>Hospital</label><input id="c_hospital" placeholder="Ex: Hospital Santa Lúcia"></div>
+              <div class="field"><label>Plano de saúde</label><input id="c_plano" placeholder="Ex: Unimed, Bradesco…"></div>
+              <div class="field"><label>Médico principal</label><input id="c_principal" placeholder="Nome do médico"></div>
+              <div class="field"><label>Médico assistente</label><input id="c_assistente" placeholder="Nome do assistente"></div>
+            </div>
+          </div>
+
+          <!-- Financeiro -->
+          <div class="section-divider"><h3>💰 Financeiro</h3></div>
+          <div class="form-grid">
+            <div class="field"><label>Valor base (PIX / à vista)</label><input type="number" id="f_valor" placeholder="0,00" oninput="calcularPagamento()"></div>
+            <div class="field"><label>Forma de pagamento</label>
+              <select id="f_pagamento" onchange="calcularPagamento()">
+                <option value="pix">PIX / Dinheiro</option>
+                <option value="3x">Cartão 3x (+3%)</option>
+                <option value="6x">Cartão 6x (+5%)</option>
+                <option value="10x">Cartão 10x (+10%)</option>
+              </select>
+            </div>
+          </div>
+          <div id="finResult" style="display:none" class="fin-result">
+            <div class="total" id="finTotal"></div>
+            <div class="parcela" id="finParcela"></div>
+          </div>
+          <div class="field" style="margin-top:12px"><label>Status do pagamento</label>
+            <select id="f_status">
+              <option value="nao">Não pago</option>
+              <option value="pago">Pago</option>
+              <option value="parcial">Parcialmente pago</option>
+            </select>
+          </div>
+          <button class="btn-sm primary" style="margin-top:16px" onclick="salvarAtendimento()">Salvar Atendimento</button>
+        </div>
+
+        <!-- Histórico -->
+        <div class="card">
+          <div class="card-title" style="margin-bottom:16px">📚 Histórico do Paciente</div>
+          <div id="historico">
+            <div class="empty-state">
+              <div class="icon">🔍</div>
+              <p>Busque um paciente pelo CPF para ver o histórico.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== PÁGINA: FINANCEIRO ========== -->
+      <div class="page" id="pgFinanceiro">
+        <div class="card">
+          <div class="card-title" style="margin-bottom:20px">Resumo Financeiro</div>
+          <div id="finResumo">
+            <div class="empty-state"><div class="icon">💰</div><p>Carregando dados financeiros…</p></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main-area -->
+</div><!-- /app -->
+
+<!-- ===================== MODAL AGENDA ===================== -->
+<div class="overlay" id="modalOverlay">
+  <div class="modal-box">
+    <h3>✏️ Editar Horário</h3>
+    <div class="form-grid full">
+      <div class="field"><label>Status do horário</label>
+        <select id="m_status">
+          <option value="disponivel">Disponível</option>
+          <option value="consulta">Consulta</option>
+          <option value="sessao">Sessão</option>
+          <option value="cirurgia">Cirurgia</option>
+          <option value="retorno">Retorno</option>
+          <option value="bloqueado">Bloqueado</option>
+          <option value="ausente">Ausente</option>
+          <option value="ferias">Férias</option>
+        </select>
+      </div>
+      <div class="field"><label>Local</label>
+        <select id="m_local">
+          <option>Clínica Life</option>
+          <option>Life Varizes — filial</option>
+          <option>Hospital Santa Lúcia</option>
+          <option>Hospital Sírio-Libanês</option>
+          <option>Outro</option>
+        </select>
+      </div>
+      <div class="field"><label>CPF do paciente (opcional)</label>
+        <input id="m_cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)">
+      </div>
+      <div class="field"><label>Observação</label>
+        <input id="m_obs" placeholder="Ex: consulta de retorno, 1ª vez…">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-action" onclick="salvarSlot()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ===================== ESTADO ===================== */
+let perfilAtual = null;
+let slotAtual   = null;
+let agendaOffset = 0;
+
+/* ===================== UTIL ===================== */
+function ls(k, def){ try{ return JSON.parse(localStorage.getItem(k)) || def; }catch(e){ return def; } }
+function lsSet(k, v){ localStorage.setItem(k, JSON.stringify(v)); }
+function toast(msg, dur=2800){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+function fmtBRL(v){ return 'R$ ' + Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2}); }
+function mascaraCPF(el){
+  let v = el.value.replace(/\D/g,'').slice(0,11);
+  v = v.replace(/(\d{3})(\d)/,'$1.$2')
+       .replace(/(\d{3})\.(\d{3})(\d)/,'$1.$2.$3')
+       .replace(/\.(\d{3})(\d)/,'.$1-$2');
+  el.value = v;
+}
+function cpfRaw(v){ return v.replace(/\D/g,''); }
+function fmtDate(d){ return new Date(d+'T12:00:00').toLocaleDateString('pt-BR'); }
+
+/* ===================== LOGIN ===================== */
+let perfilSelecionado = 'dra';
+function selectPerfil(p){
+  perfilSelecionado = p;
+  document.querySelectorAll('.profile-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('pBtn-' + p).classList.add('active');
+  document.getElementById('senhaInput').focus();
+}
+function login(){
+  const s = document.getElementById('senhaInput').value;
+  const err = document.getElementById('loginError');
+  const senhas = { dra: 'dra123', secretaria: 'sec123' };
+  if(s === senhas[perfilSelecionado]){
+    perfilAtual = perfilSelecionado;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    iniciarApp();
+  } else {
+    err.style.display = 'block';
+    setTimeout(() => err.style.display = 'none', 3000);
+  }
+}
+function logout(){
+  perfilAtual = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('senhaInput').value = '';
+}
+
+/* ===================== APP INIT ===================== */
+function iniciarApp(){
+  // Topbar date
+  document.getElementById('topbarDate').textContent =
+    new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+
+  // User info
+  if(perfilAtual === 'dra'){
+    document.getElementById('userName').textContent = 'Dra. Maíra Vilela';
+    document.getElementById('userRole').textContent = 'Médica';
+    document.getElementById('userAvatar').textContent = 'MV';
+    document.getElementById('navFinanceiro').style.display = '';
+  } else {
+    document.getElementById('userName').textContent = 'Secretária';
+    document.getElementById('userRole').textContent = 'Atendimento';
+    document.getElementById('userAvatar').textContent = 'SC';
+    document.getElementById('navFinanceiro').style.display = 'none';
+    // Restrições
+    ['a_obs','f_valor','f_pagamento','f_status'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.disabled = true;
+    });
+  }
+  renderAgenda(0);
+}
+
+/* ===================== NAVEGAÇÃO ===================== */
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+
+  const titles = { pgAgenda:'Agenda', pgProntuario:'Prontuários', pgFinanceiro:'Financeiro' };
+  document.getElementById('topbarTitle').textContent = titles[id] || '';
+
+  // Ativa nav item correspondente
+  const navMap = { pgAgenda:0, pgProntuario:1, pgFinanceiro:2 };
+  const navItems = document.querySelectorAll('.nav-item');
+  if(navItems[navMap[id]]) navItems[navMap[id]].classList.add('active');
+
+  if(id === 'pgFinanceiro') renderFinanceiro();
+  closeSidebar();
+}
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+}
+
+/* ===================== AGENDA ===================== */
+function irHoje(){ agendaOffset = 0; renderAgenda(0); }
+function renderAgenda(delta){
+  agendaOffset += delta;
+  const cal   = document.getElementById('calendar');
+  const hoje  = new Date();
+  const base  = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() + agendaOffset);
+  const slots = ls('agendaSlots', {});
+  const ret   = ls('agendaRetornos', {});
+  const dias  = Array.from({length:14}, (_,i) => new Date(base.getFullYear(), base.getMonth(), base.getDate()+i));
+  const cols  = 1 + dias.length;
+
+  cal.innerHTML = '';
+  cal.style.gridTemplateColumns = `64px repeat(${dias.length}, 1fr)`;
+
+  // Header
+  cal.appendChild(Object.assign(document.createElement('div'),{className:'cal-time cal-day-header',style:'background:var(--navy)'}));
+  const hj = hoje.toISOString().slice(0,10);
+  dias.forEach(d => {
+    const iso = d.toISOString().slice(0,10);
+    const diaSem = d.getDay();
+    const isWE = diaSem === 0 || diaSem === 6;
+    const isToday = iso === hj;
+    const cls = 'cal-day-header' + (isWE?' weekend':'') + (isToday?' today':'');
+    const el = Object.assign(document.createElement('div'),{className:cls});
+    el.innerHTML = `<div style="font-size:.65rem;opacity:.75">${d.toLocaleDateString('pt-BR',{weekday:'short'}).toUpperCase()}</div><div style="font-size:.88rem">${d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})}</div>`;
+    cal.appendChild(el);
   });
- }
+
+  // Horários
+  for(let h = 7; h <= 18; h++){
+    const timeEl = Object.assign(document.createElement('div'),{className:'cal-time'});
+    timeEl.textContent = h + ':00';
+    cal.appendChild(timeEl);
+
+    dias.forEach(d => {
+      const iso = d.toISOString().slice(0,10);
+      const key = iso + '_' + h;
+      const diaSem = d.getDay();
+      const isWE = diaSem === 0 || diaSem === 6;
+      const slot = slots[key];
+      const retorno = ret[key];
+      const cell = document.createElement('div');
+      let status = 'disponivel';
+      let label = '';
+      let sub = '';
+
+      if(retorno){ status='retorno'; label='Retorno'; sub=retorno; }
+      else if(slot){ status=slot.status; label=capitalizar(slot.status); sub=slot.cpf||slot.obs||slot.local||''; }
+      else if(isWE){ status='bloqueado'; }
+
+      cell.className = 'cal-cell s-' + status + (isWE?' weekend':'');
+      if(label) cell.innerHTML = `<div class="cell-label">${label}</div><div class="cell-sub">${sub}</div>`;
+      if(perfilAtual === 'dra') cell.onclick = () => abrirModal(key, slot);
+      cal.appendChild(cell);
+    });
+  }
 }
-function abrirModal(k){
- if(perfilAtual!=="dra")return;
- slotAtual=k;
- modal.style.display="block";
+function capitalizar(s){ return s ? s.charAt(0).toUpperCase()+s.slice(1) : ''; }
+function abrirModal(k, slot){
+  slotAtual = k;
+  document.getElementById('m_status').value = slot?.status || 'disponivel';
+  document.getElementById('m_local').value  = slot?.local  || 'Clínica Life';
+  document.getElementById('m_cpf').value    = slot?.cpf    || '';
+  document.getElementById('m_obs').value    = slot?.obs    || '';
+  document.getElementById('modalOverlay').classList.add('open');
 }
-function fecharModal(){modal.style.display="none"}
+function fecharModal(){ document.getElementById('modalOverlay').classList.remove('open'); }
 function salvarSlot(){
- let s=JSON.parse(localStorage.getItem("agendaSlots")||"{}");
- s[slotAtual]={status:m_status.value,local:m_local.value,cpf:m_cpf.value};
- localStorage.setItem("agendaSlots",JSON.stringify(s));
- fecharModal();renderAgenda();
+  const slots = ls('agendaSlots', {});
+  slots[slotAtual] = {
+    status: document.getElementById('m_status').value,
+    local:  document.getElementById('m_local').value,
+    cpf:    document.getElementById('m_cpf').value,
+    obs:    document.getElementById('m_obs').value,
+  };
+  lsSet('agendaSlots', slots);
+  fecharModal();
+  renderAgenda(0);
+  toast('✅ Horário salvo com sucesso!');
+}
+
+/* ===================== BUSCA PACIENTE ===================== */
+function buscarPaciente(){
+  const cpf = cpfRaw(document.getElementById('buscarCPF').value);
+  const status = document.getElementById('buscaStatus');
+  if(cpf.length < 11){ status.textContent = '⚠️ CPF inválido.'; return; }
+
+  const dados = ls('pac_' + cpf, null);
+  if(dados){
+    const { info, atendimentos } = dados;
+    document.getElementById('p_nome').value    = info?.nome    || '';
+    document.getElementById('p_cpf').value     = info?.cpf     || '';
+    document.getElementById('p_nasc').value    = info?.nasc    || '';
+    document.getElementById('p_peso').value    = info?.peso    || '';
+    document.getElementById('p_altura').value  = info?.altura  || '';
+    document.getElementById('p_sangue').value  = info?.sangue  || '';
+    document.getElementById('p_doencas').value = info?.doencas || '';
+    document.getElementById('pacStatusTag').textContent = 'Paciente encontrado';
+    document.getElementById('pacStatusTag').className  = 'tag tag-green';
+    status.textContent = `✅ Paciente encontrado: ${info?.nome || cpf}`;
+    renderHistorico(cpf);
+  } else {
+    document.getElementById('p_cpf').value = document.getElementById('buscarCPF').value;
+    document.getElementById('pacStatusTag').textContent = 'Novo paciente';
+    document.getElementById('pacStatusTag').className  = 'tag tag-amber';
+    status.textContent = '⚠️ Paciente não encontrado. Preencha os dados para cadastrar.';
+  }
+}
+function novoRegistro(){
+  ['p_nome','p_cpf','p_nasc','p_peso','p_altura','p_sangue','p_doencas',
+   'a_data','a_obs','a_retorno','c_hospital','c_plano','c_principal','c_assistente',
+   'f_valor','buscarCPF'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.value = '';
+  });
+  document.getElementById('pacStatusTag').textContent = 'Novo registro';
+  document.getElementById('pacStatusTag').className   = 'tag tag-blue';
+  document.getElementById('buscaStatus').textContent  = '';
+  document.getElementById('historico').innerHTML = '<div class="empty-state"><div class="icon">🔍</div><p>Nenhum histórico para novo paciente.</p></div>';
+  document.getElementById('finResult').style.display = 'none';
+}
+function salvarPaciente(){
+  const cpf = cpfRaw(document.getElementById('p_cpf').value);
+  if(!cpf){ toast('⚠️ Informe o CPF do paciente.'); return; }
+  const dados = ls('pac_' + cpf, { info:{}, atendimentos:[] });
+  dados.info = {
+    nome:    document.getElementById('p_nome').value,
+    cpf:     document.getElementById('p_cpf').value,
+    nasc:    document.getElementById('p_nasc').value,
+    peso:    document.getElementById('p_peso').value,
+    altura:  document.getElementById('p_altura').value,
+    sangue:  document.getElementById('p_sangue').value,
+    doencas: document.getElementById('p_doencas').value,
+  };
+  lsSet('pac_' + cpf, dados);
+  toast('✅ Dados do paciente salvos!');
+}
+
+/* ===================== ATENDIMENTO ===================== */
+function toggleCirurgia(){
+  const show = document.getElementById('a_tipo').value === 'cirurgia';
+  document.getElementById('cirurgiaCampos').style.display = show ? 'block' : 'none';
+}
+function calcularPagamento(){
+  const v = Number(document.getElementById('f_valor').value);
+  const f = document.getElementById('f_pagamento').value;
+  if(!v){ document.getElementById('finResult').style.display='none'; return; }
+  const fatores = { pix:1, '3x':1.03, '6x':1.05, '10x':1.10 };
+  const parcelas = { pix:1, '3x':3, '6x':6, '10x':10 };
+  const total = v * fatores[f];
+  const n = parcelas[f];
+  document.getElementById('finTotal').textContent = `Total: ${fmtBRL(total)}`;
+  document.getElementById('finParcela').textContent = n > 1 ? `${n}x de ${fmtBRL(total/n)}` : 'Pagamento à vista';
+  document.getElementById('finResult').style.display = 'block';
+}
+function salvarAtendimento(){
+  if(perfilAtual !== 'dra'){ toast('⚠️ Apenas a médica pode salvar atendimentos.'); return; }
+  const cpf = cpfRaw(document.getElementById('p_cpf').value);
+  if(!cpf){ toast('⚠️ Informe o CPF do paciente primeiro.'); return; }
+  if(!document.getElementById('a_data').value){ toast('⚠️ Informe a data do atendimento.'); return; }
+
+  const dados = ls('pac_' + cpf, { info:{}, atendimentos:[] });
+  const tipo = document.getElementById('a_tipo').value;
+  const val  = document.getElementById('f_valor').value;
+  const forma = document.getElementById('f_pagamento').value;
+  const fat  = {pix:1,'3x':1.03,'6x':1.05,'10x':1.10}[forma];
+  const atend = {
+    data:      document.getElementById('a_data').value,
+    tipo,
+    obs:       document.getElementById('a_obs').value,
+    retorno:   document.getElementById('a_retorno').value,
+    financeiro:{ valor:val, forma, total:(val*fat).toFixed(2), status:document.getElementById('f_status').value },
+  };
+  if(tipo === 'cirurgia'){
+    atend.cirurgia = {
+      hospital:   document.getElementById('c_hospital').value,
+      plano:      document.getElementById('c_plano').value,
+      principal:  document.getElementById('c_principal').value,
+      assistente: document.getElementById('c_assistente').value,
+    };
+  }
+  dados.atendimentos.push(atend);
+  lsSet('pac_' + cpf, dados);
+
+  // Registrar retorno na agenda
+  if(atend.retorno){
+    const ret = ls('agendaRetornos', {});
+    ret[atend.retorno + '_9'] = cpf;
+    lsSet('agendaRetornos', ret);
+  }
+  renderHistorico(cpf);
+  toast('✅ Atendimento salvo com sucesso!');
+}
+
+/* ===================== HISTÓRICO ===================== */
+const tipoInfo = {
+  consulta:  { icon:'🩺', color:'tag-blue',   bg:'#eff6ff' },
+  sessao:    { icon:'💉', color:'tag-teal',   bg:'#e6f7f5' },
+  cirurgia:  { icon:'🏥', color:'tag-red',    bg:'#fdeaea' },
+  retorno:   { icon:'🔁', color:'tag-amber',  bg:'#fef3c7' },
+};
+function renderHistorico(cpf){
+  const hist = document.getElementById('historico');
+  const dados = ls('pac_' + cpf, null);
+  if(!dados || !dados.atendimentos.length){
+    hist.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>Nenhum atendimento registrado ainda.</p></div>';
+    return;
+  }
+  const arr = [...dados.atendimentos].reverse();
+  hist.innerHTML = arr.map(h => {
+    const t = tipoInfo[h.tipo] || tipoInfo.consulta;
+    const statusFin = h.financeiro?.status === 'pago' ? '<span class="tag tag-green">Pago</span>' :
+                      h.financeiro?.status === 'parcial' ? '<span class="tag tag-amber">Parcial</span>' :
+                      '<span class="tag tag-red">Não pago</span>';
+    return `<div class="hist-item">
+      <div class="hist-icon" style="background:${t.bg}">${t.icon}</div>
+      <div class="hist-body">
+        <div class="hist-type">${capitalizar(h.tipo)} <span class="tag ${t.color}" style="margin-left:6px">${capitalizar(h.tipo)}</span></div>
+        <div class="hist-date">${fmtDate(h.data)}${h.retorno?' · Retorno: '+fmtDate(h.retorno):''}</div>
+        ${h.obs ? `<div class="hist-detail">${h.obs.substring(0,120)}${h.obs.length>120?'…':''}</div>` : ''}
+        ${h.financeiro?.valor ? `<div class="hist-fin">${fmtBRL(h.financeiro.total||h.financeiro.valor)} · ${h.financeiro.forma.toUpperCase()} ${statusFin}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ===================== FINANCEIRO ===================== */
+function renderFinanceiro(){
+  const div = document.getElementById('finResumo');
+  // Varrer todos os pacientes
+  let total = 0, pago = 0, nPago = 0, atendimentos = [];
+  Object.keys(localStorage).filter(k => k.startsWith('pac_')).forEach(k => {
+    const d = ls(k, null);
+    if(!d) return;
+    (d.atendimentos || []).forEach(a => {
+      if(!a.financeiro?.valor) return;
+      const v = Number(a.financeiro.total || a.financeiro.valor);
+      total += v;
+      if(a.financeiro.status === 'pago') pago += v;
+      else nPago += v;
+      atendimentos.push({ nome: d.info?.nome || k.replace('pac_',''), ...a });
+    });
+  });
+  if(!atendimentos.length){
+    div.innerHTML = '<div class="empty-state"><div class="icon">💰</div><p>Nenhum registro financeiro encontrado.</p></div>';
+    return;
+  }
+  atendimentos.sort((a,b) => b.data.localeCompare(a.data));
+  div.innerHTML = `
+    <div class="form-grid" style="margin-bottom:20px">
+      <div class="card" style="background:linear-gradient(135deg,#eef4fb,#e6f7f5);border:none">
+        <div style="font-size:.75rem;color:var(--gray-600);text-transform:uppercase;font-weight:600">Total gerado</div>
+        <div style="font-size:1.5rem;font-weight:700;color:var(--navy);margin-top:4px">${fmtBRL(total)}</div>
+      </div>
+      <div class="card" style="background:var(--green-lt);border:none">
+        <div style="font-size:.75rem;color:var(--green);text-transform:uppercase;font-weight:600">Total recebido</div>
+        <div style="font-size:1.5rem;font-weight:700;color:var(--green);margin-top:4px">${fmtBRL(pago)}</div>
+      </div>
+      <div class="card" style="background:var(--red-lt);border:none">
+        <div style="font-size:.75rem;color:var(--red);text-transform:uppercase;font-weight:600">A receber</div>
+        <div style="font-size:1.5rem;font-weight:700;color:var(--red);margin-top:4px">${fmtBRL(nPago)}</div>
+      </div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:.82rem">
+      <thead>
+        <tr style="background:var(--navy);color:white">
+          <th style="padding:10px 12px;text-align:left;border-radius:8px 0 0 0">Paciente</th>
+          <th style="padding:10px 12px;text-align:left">Data</th>
+          <th style="padding:10px 12px;text-align:left">Tipo</th>
+          <th style="padding:10px 12px;text-align:right">Valor</th>
+          <th style="padding:10px 12px;text-align:center;border-radius:0 8px 0 0">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${atendimentos.map((a,i) => {
+          const st = a.financeiro?.status;
+          const tag = st==='pago' ? '<span class="tag tag-green">Pago</span>' :
+                      st==='parcial' ? '<span class="tag tag-amber">Parcial</span>' :
+                      '<span class="tag tag-red">Não pago</span>';
+          return `<tr style="background:${i%2===0?'var(--gray-50)':'white'}">
+            <td style="padding:9px 12px;font-weight:500">${a.nome}</td>
+            <td style="padding:9px 12px;color:var(--gray-600)">${fmtDate(a.data)}</td>
+            <td style="padding:9px 12px">${capitalizar(a.tipo)}</td>
+            <td style="padding:9px 12px;text-align:right;font-weight:600">${fmtBRL(a.financeiro?.total||a.financeiro?.valor)}</td>
+            <td style="padding:9px 12px;text-align:center">${tag}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
 }
 </script>
-
 </body>
 </html>
