@@ -708,6 +708,148 @@ body {
   z-index: 99;
 }
 .overlay-sidebar.open { display: block; }
+/* ===================== HELPERS NOVOS CAMPOS ===================== */
+function toggleIndicacaoDetalhe(){
+  const v = document.getElementById('p_indicacao').value;
+  const show = v === 'indicacao_paciente' || v === 'indicacao_medico' || v === 'outro';
+  document.getElementById('indicacaoDetalheField').style.display = show ? '' : 'none';
+}
+function togglePlano(){
+  const isPlano = document.getElementById('cob_plano').checked;
+  document.getElementById('campoPlano').style.display = isPlano ? '' : 'none';
+  // plano: disable valor/pagamento fields (covered by insurance)
+  const disableVal = isPlano;
+  // Keep enabled — plano may still have co-payment
+}
+
+/* ===================== DOCUMENTOS JURÍDICOS ===================== */
+.doc-juridico {
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: 32px 36px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .88rem;
+  line-height: 1.8;
+  color: #222;
+}
+.doc-juridico .doc-header {
+  text-align: center;
+  border-bottom: 2px solid var(--navy);
+  padding-bottom: 18px;
+  margin-bottom: 24px;
+}
+.doc-juridico .doc-header .razao {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+.doc-juridico .doc-header .info-clinica {
+  font-size: .78rem;
+  color: var(--gray-600);
+  margin-top: 4px;
+  line-height: 1.5;
+}
+.doc-juridico .doc-titulo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--navy);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 20px;
+  padding: 10px;
+  background: var(--gray-50);
+  border-radius: 8px;
+  border: 1px solid var(--gray-200);
+}
+.doc-juridico p { margin-bottom: 10px; text-align: justify; }
+.doc-juridico .clausula {
+  font-weight: 700;
+  color: var(--navy);
+  margin-top: 16px;
+  margin-bottom: 6px;
+}
+.doc-juridico .campo-inline {
+  display: inline-block;
+  min-width: 160px;
+  border-bottom: 1px solid #999;
+  font-weight: 600;
+  color: var(--navy);
+  padding: 0 4px;
+}
+.doc-juridico .assinaturas {
+  margin-top: 48px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+.doc-juridico .assinatura-bloco {
+  text-align: center;
+  border-top: 1px solid #555;
+  padding-top: 10px;
+  font-size: .8rem;
+  color: var(--gray-600);
+  line-height: 1.5;
+}
+.doc-juridico .assinatura-bloco strong { color: var(--navy); }
+.doc-juridico .rodape-doc {
+  margin-top: 32px;
+  padding-top: 12px;
+  border-top: 1px solid var(--gray-200);
+  font-size: .72rem;
+  color: var(--gray-400);
+  text-align: center;
+}
+.doc-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.doc-tab {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1.5px solid var(--gray-200);
+  background: white;
+  color: var(--gray-600);
+  cursor: pointer;
+  font-size: .82rem;
+  font-weight: 500;
+  transition: all .18s;
+  font-family: 'DM Sans', sans-serif;
+}
+.doc-tab:hover { border-color: var(--blue); color: var(--blue); }
+.doc-tab.active { background: var(--navy); color: white; border-color: var(--navy); }
+.doc-panel { display: none; }
+.doc-panel.active { display: block; }
+.btn-imprimir {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: 8px;
+  border: 1.5px solid var(--navy);
+  background: white;
+  color: var(--navy);
+  cursor: pointer;
+  font-size: .84rem;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  transition: all .18s;
+  margin-bottom: 16px;
+}
+.btn-imprimir:hover { background: var(--navy); color: white; }
+@media print {
+  body > *:not(#printArea) { display: none !important; }
+  #printArea { display: block !important; padding: 20px; margin: 0; }
+  .doc-juridico { box-shadow: none; border: none; }
+  .btn-imprimir, .doc-tabs, .card-header { display: none !important; }
+}
+#printArea { display: none; }
+
 </style>
 </head>
 <body>
@@ -756,6 +898,9 @@ body {
       </button>
       <button class="nav-item" onclick="showPage('pgProntuario')">
         <span class="ni">📁</span> Prontuários
+      </button>
+      <button class="nav-item" onclick="showPage('pgDocumentos')">
+        <span class="ni">📄</span> Documentos
       </button>
       <button class="nav-item" id="navFinanceiro" onclick="showPage('pgFinanceiro')">
         <span class="ni">💰</span> Financeiro
@@ -855,6 +1000,25 @@ body {
             </div>
             <div class="field"><label>Peso (kg)</label><input id="p_peso" type="number" placeholder="0"></div>
             <div class="field"><label>Altura (cm)</label><input id="p_altura" type="number" placeholder="0"></div>
+            <div class="field" style="grid-column:1/-1"><label>Endereço completo</label><input id="p_endereco" placeholder="Rua, número, bairro, cidade, UF, CEP"></div>
+            <div class="field"><label>E-mail</label><input id="p_email" type="email" placeholder="email@exemplo.com"></div>
+            <div class="field"><label>Telefone / WhatsApp</label><input id="p_telefone" placeholder="(00) 00000-0000"></div>
+            <div class="field"><label>Contato de emergência</label><input id="p_emerg_nome" placeholder="Nome completo"></div>
+            <div class="field"><label>Telefone do contato de emergência</label><input id="p_emerg_tel" placeholder="(00) 00000-0000"></div>
+            <div class="field" style="grid-column:1/-1"><label>Indicação</label>
+              <select id="p_indicacao" onchange="toggleIndicacaoDetalhe()">
+                <option value="">— Selecione —</option>
+                <option value="busca_propria">Busca própria (internet, redes sociais)</option>
+                <option value="indicacao_paciente">Indicação de paciente</option>
+                <option value="indicacao_medico">Indicação de outro médico</option>
+                <option value="plano_saude">Plano de saúde / convênio</option>
+                <option value="outro">Outro</option>
+              </select>
+            </div>
+            <div class="field" id="indicacaoDetalheField" style="display:none;grid-column:1/-1">
+              <label>Detalhe da indicação</label>
+              <input id="p_indicacao_detalhe" placeholder="Ex: nome do paciente que indicou, nome do médico, outro canal…">
+            </div>
           </div>
           <div class="field" style="margin-top:12px"><label>Doenças pré-existentes / Alergias</label><textarea id="p_doencas" placeholder="Ex: hipertensão, diabetes, alergia a dipirona…"></textarea></div>
           <button class="btn-sm primary" style="margin-top:14px" onclick="salvarPaciente()">Salvar dados do paciente</button>
@@ -890,6 +1054,23 @@ body {
 
           <!-- Financeiro -->
           <div class="section-divider"><h3>💰 Financeiro</h3></div>
+          <div class="form-grid" style="margin-bottom:12px">
+            <div class="field" style="grid-column:1/-1">
+              <label>Tipo de cobertura</label>
+              <div style="display:flex;gap:10px;margin-top:4px">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:400;text-transform:none;letter-spacing:0;font-size:.88rem;color:var(--gray-800)">
+                  <input type="radio" name="cobertura" id="cob_particular" value="particular" checked onchange="togglePlano()" style="width:auto;margin:0"> Particular
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:400;text-transform:none;letter-spacing:0;font-size:.88rem;color:var(--gray-800)">
+                  <input type="radio" name="cobertura" id="cob_plano" value="plano" onchange="togglePlano()" style="width:auto;margin:0"> Plano de Saúde
+                </label>
+              </div>
+            </div>
+            <div class="field" id="campoPlano" style="display:none;grid-column:1/-1">
+              <label>Nome do plano de saúde</label>
+              <input id="f_plano_nome" placeholder="Ex: Unimed, Bradesco Saúde, SulAmérica…">
+            </div>
+          </div>
           <div class="form-grid">
             <div class="field"><label>Valor base (PIX / à vista)</label><input type="number" id="f_valor" placeholder="0,00" oninput="calcularPagamento()"></div>
             <div class="field"><label>Forma de pagamento</label>
@@ -926,6 +1107,218 @@ body {
           </div>
         </div>
       </div>
+
+
+      <!-- ========== PÁGINA: DOCUMENTOS JURÍDICOS ========== -->
+      <div class="page" id="pgDocumentos">
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Documentos Jurídicos</div>
+              <div class="card-sub">Preenchidos automaticamente com os dados do paciente ativo</div>
+            </div>
+            <button class="btn-imprimir" onclick="imprimirDoc()">🖨️ Imprimir / Salvar PDF</button>
+          </div>
+
+          <div class="doc-tabs">
+            <button class="doc-tab active" onclick="showDocTab('tabContrato')">📋 Contrato de Prestação</button>
+            <button class="doc-tab" onclick="showDocTab('tabCancelamento')">❌ Termo de Cancelamento</button>
+            <button class="doc-tab" onclick="showDocTab('tabFalta')">⚠️ Política de Faltas</button>
+          </div>
+
+          <!-- ===== TAB 1: CONTRATO ===== -->
+          <div class="doc-panel active" id="tabContrato">
+            <div class="doc-juridico" id="docContrato">
+              <div class="doc-header">
+                <div class="razao">Life Varizes</div>
+                <div class="info-clinica">
+                  CNPJ 44.224.931/0001-49 · Responsável Técnica: Dra. Maíra Vilela — CRM 024085/DF<br>
+                  SMHN Quadra 2, Bloco B, Consultório 1512, Edif. Cleo Octavio, Asa Norte, Brasília-DF — CEP 70710-146<br>
+                  Telefone: (61) 98589-5499
+                </div>
+              </div>
+              <div class="doc-titulo">Contrato de Prestação de Serviços Médicos</div>
+
+              <p><strong>CONTRATANTE:</strong> <span class="campo-inline" id="ct_nome_c"></span>, portador(a) do CPF nº <span class="campo-inline" id="ct_cpf_c"></span>, doravante denominado(a) <strong>CONTRATANTE</strong>.</p>
+
+              <p><strong>CONTRATADA:</strong> <strong>Life Varizes</strong>, pessoa jurídica inscrita no CNPJ sob o nº <strong>44.224.931/0001-49</strong>, com sede na SMHN Quadra 2, Bloco B, Consultório 1512, Edif. Cleo Octavio, Asa Norte, Brasília-DF, CEP 70710-146, representada pela Responsável Técnica <strong>Dra. Maíra Vilela</strong>, inscrita no CRM sob o nº <strong>024085/DF</strong>, doravante denominada <strong>CONTRATADA</strong>.</p>
+
+              <p>As partes acima identificadas têm, entre si, justo e acordado o presente Contrato de Prestação de Serviços Médicos, que se regerá pelas cláusulas e condições descritas a seguir.</p>
+
+              <div class="clausula">CLÁUSULA 1ª — DO OBJETO</div>
+              <p>O presente contrato tem como objeto a prestação de serviços médicos especializados em Cirurgia Vascular, especificamente: <span class="campo-inline" id="ct_tipo_c"></span>, a ser realizado(a) nas dependências da CONTRATADA ou em local por ela indicado.</p>
+
+              <div class="clausula">CLÁUSULA 2ª — DO VALOR E FORMA DE PAGAMENTO</div>
+              <p>Pelos serviços prestados, o CONTRATANTE pagará à CONTRATADA o valor de <strong><span class="campo-inline" id="ct_valor_c"></span></strong>, a ser quitado na forma: <span class="campo-inline" id="ct_pagamento_c"></span>.</p>
+              <p>O pagamento deverá ser efetuado conforme acordado entre as partes, sendo que o início do tratamento ou procedimento estará condicionado à confirmação do pagamento ou ao cumprimento das condições financeiras acordadas.</p>
+
+              <div class="clausula">CLÁUSULA 3ª — DAS OBRIGAÇÕES DA CONTRATADA</div>
+              <p>A CONTRATADA obriga-se a: (i) prestar os serviços com zelo, competência e dentro dos padrões éticos da medicina; (ii) informar ao CONTRATANTE sobre os procedimentos a serem realizados, seus riscos e benefícios; (iii) guardar sigilo sobre as informações do CONTRATANTE, nos termos do Código de Ética Médica.</p>
+
+              <div class="clausula">CLÁUSULA 4ª — DAS OBRIGAÇÕES DO CONTRATANTE</div>
+              <p>O CONTRATANTE obriga-se a: (i) fornecer informações verídicas sobre seu estado de saúde; (ii) seguir as orientações médicas prescritas; (iii) comparecer às consultas e sessões agendadas, com aviso prévio mínimo de 24 (vinte e quatro) horas em caso de cancelamento ou reagendamento; (iv) efetuar os pagamentos nas datas acordadas.</p>
+
+              <div class="clausula">CLÁUSULA 5ª — DA POLÍTICA DE FALTAS E CANCELAMENTOS</div>
+              <p>Faltas não justificadas, sem aviso prévio mínimo de <strong>24 (vinte e quatro) horas</strong> de antecedência, serão contabilizadas como sessão realizada para fins de cobrança, dado o prejuízo causado à agenda profissional e a impossibilidade de ocupação da vaga por outro paciente. Em caso de cancelamento do tratamento, aplicar-se-á o disposto no Termo de Cancelamento específico.</p>
+
+              <div class="clausula">CLÁUSULA 6ª — DA RESPONSABILIDADE</div>
+              <p>A responsabilidade da CONTRATADA limita-se à prestação dos serviços com o emprego de técnicas adequadas e reconhecidas pela medicina, não podendo ser responsabilizada por resultados que dependam de fatores biológicos individuais do CONTRATANTE, como resposta orgânica ao tratamento, cicatrização e outros.</p>
+
+              <div class="clausula">CLÁUSULA 7ª — DO FORO</div>
+              <p>As partes elegem o Foro da Comarca de <strong>Brasília, Distrito Federal</strong>, para dirimir quaisquer dúvidas ou litígios decorrentes do presente contrato, com renúncia expressa a qualquer outro, por mais privilegiado que seja.</p>
+
+              <p style="margin-top:20px">Brasília-DF, <span class="campo-inline" id="ct_data_c" style="min-width:200px"></span>.</p>
+
+              <div class="assinaturas">
+                <div class="assinatura-bloco">
+                  ___________________________________<br>
+                  <strong><span id="ct_nome_ass"></span></strong><br>
+                  CONTRATANTE<br>
+                  CPF: <span id="ct_cpf_ass"></span>
+                </div>
+                <div class="assinatura-bloco">
+                  ___________________________________<br>
+                  <strong>Dra. Maíra Vilela</strong><br>
+                  CONTRATADA — Life Varizes<br>
+                  CRM 024085/DF · CNPJ 44.224.931/0001-49
+                </div>
+              </div>
+              <div class="rodape-doc">Documento gerado pelo Sistema de Gestão Life Varizes · Este documento possui validade jurídica quando assinado por ambas as partes.</div>
+            </div>
+          </div>
+
+          <!-- ===== TAB 2: CANCELAMENTO ===== -->
+          <div class="doc-panel" id="tabCancelamento">
+            <div class="doc-juridico" id="docCancelamento">
+              <div class="doc-header">
+                <div class="razao">Life Varizes</div>
+                <div class="info-clinica">
+                  CNPJ 44.224.931/0001-49 · Responsável Técnica: Dra. Maíra Vilela — CRM 024085/DF<br>
+                  SMHN Quadra 2, Bloco B, Consultório 1512, Edif. Cleo Octavio, Asa Norte, Brasília-DF — CEP 70710-146
+                </div>
+              </div>
+              <div class="doc-titulo">Termo de Cancelamento de Tratamento</div>
+
+              <p>Pelo presente instrumento, <span class="campo-inline" id="can_nome"></span>, portador(a) do CPF nº <span class="campo-inline" id="can_cpf"></span>, doravante denominado(a) <strong>PACIENTE</strong>, declara expressamente sua opção pelo <strong>cancelamento do tratamento</strong> contratado junto à <strong>Life Varizes</strong>, e está ciente das condições de estorno abaixo descritas.</p>
+
+              <div class="clausula">CLÁUSULA 1ª — DO TRATAMENTO CANCELADO</div>
+              <p>O PACIENTE solicita o cancelamento do tratamento de: <span class="campo-inline" id="can_tipo" style="min-width:240px"></span>, cuja contratação foi realizada em <span class="campo-inline" id="can_data_contrato"></span>, pelo valor total de <strong><span class="campo-inline" id="can_valor_total"></span></strong>, na forma de pagamento: <span class="campo-inline" id="can_forma_pag"></span>.</p>
+
+              <div class="clausula">CLÁUSULA 2ª — DAS SESSÕES REALIZADAS</div>
+              <p>Até a data do presente cancelamento, foram realizadas <span class="campo-inline" id="can_sessoes_real" style="min-width:60px"></span> sessão(ões) do total contratado de <span class="campo-inline" id="can_sessoes_total" style="min-width:60px"></span> sessões, ao custo unitário de <strong><span class="campo-inline" id="can_valor_sessao"></span></strong> por sessão.</p>
+
+              <div class="clausula">CLÁUSULA 3ª — DO CÁLCULO DO ESTORNO</div>
+              <p>O valor a ser estornado ao PACIENTE será calculado da seguinte forma:</p>
+              <div style="background:var(--gray-50);border-radius:8px;padding:16px;margin:10px 0;border:1px solid var(--gray-200)">
+                <p style="margin:0"><strong>Valor total pago:</strong> <span id="can_calc_pago"></span></p>
+                <p style="margin:4px 0">(<strong>–</strong>) Sessões realizadas: <span id="can_calc_sessoes"></span></p>
+                <p style="margin:4px 0">(<strong>–</strong>) Taxa administrativa / impostos: <span id="can_calc_taxa"></span> (incidente sobre o valor pago)</p>
+                <p style="margin:4px 0">(<strong>–</strong>) Taxa de cartão de crédito (se aplicável): <span id="can_calc_cartao"></span></p>
+                <p style="margin:8px 0 0;padding-top:8px;border-top:1px solid var(--gray-200)"><strong>Valor a restituir: <span id="can_calc_restituir" style="color:var(--teal)"></span></strong></p>
+              </div>
+
+              <div class="clausula">CLÁUSULA 4ª — DAS CONDIÇÕES DE RESTITUIÇÃO</div>
+              <p>O valor apurado será restituído ao PACIENTE no prazo de até <strong>30 (trinta) dias</strong> úteis, contados da data de assinatura deste termo, mediante <span class="campo-inline" id="can_forma_restituicao" style="min-width:200px"></span> (PIX, transferência bancária ou estorno no cartão, conforme a forma de pagamento original).</p>
+
+              <div class="clausula">CLÁUSULA 5ª — DA DECLARAÇÃO DO PACIENTE</div>
+              <p>O PACIENTE declara estar ciente de que: (i) as sessões já realizadas não são passíveis de estorno; (ii) os encargos financeiros, impostos e taxas de cartão de crédito incidentes sobre o valor pago serão descontados do estorno; (iii) a solicitação de cancelamento é irrevogável a partir da assinatura deste instrumento; (iv) o presente termo não impede o PACIENTE de retomar o tratamento futuramente, mediante novo contrato.</p>
+
+              <div class="clausula">CLÁUSULA 6ª — DO FORO</div>
+              <p>As partes elegem o Foro da Comarca de <strong>Brasília, Distrito Federal</strong> para dirimir eventuais litígios decorrentes deste termo.</p>
+
+              <p style="margin-top:20px">Brasília-DF, <span class="campo-inline" id="can_data_ass" style="min-width:200px"></span>.</p>
+
+              <div class="assinaturas">
+                <div class="assinatura-bloco">
+                  ___________________________________<br>
+                  <strong><span id="can_nome_ass"></span></strong><br>
+                  PACIENTE<br>
+                  CPF: <span id="can_cpf_ass"></span>
+                </div>
+                <div class="assinatura-bloco">
+                  ___________________________________<br>
+                  <strong>Dra. Maíra Vilela</strong><br>
+                  Life Varizes · CRM 024085/DF<br>
+                  CNPJ 44.224.931/0001-49
+                </div>
+              </div>
+              <div class="rodape-doc">Documento gerado pelo Sistema de Gestão Life Varizes · Este documento possui validade jurídica quando assinado por ambas as partes.</div>
+            </div>
+
+            <!-- Campos auxiliares do cancelamento -->
+            <div class="card" style="margin-top:16px">
+              <div class="card-title" style="margin-bottom:16px">📊 Dados para cálculo do estorno</div>
+              <div class="form-grid">
+                <div class="field"><label>Sessões já realizadas</label><input type="number" id="in_sessoes_real" placeholder="0" oninput="calcularEstorno()"></div>
+                <div class="field"><label>Total de sessões contratadas</label><input type="number" id="in_sessoes_total" placeholder="0" oninput="calcularEstorno()"></div>
+                <div class="field"><label>Taxa administrativa / impostos (%)</label><input type="number" id="in_taxa_admin" value="10" oninput="calcularEstorno()"></div>
+                <div class="field"><label>Taxa cartão de crédito (%)</label><input type="number" id="in_taxa_cartao" value="0" oninput="calcularEstorno()"></div>
+                <div class="field"><label>Forma de restituição</label>
+                  <select id="in_forma_rest" onchange="calcularEstorno()">
+                    <option>PIX / Transferência bancária</option>
+                    <option>Estorno no cartão de crédito</option>
+                    <option>Dinheiro em espécie</option>
+                  </select>
+                </div>
+              </div>
+              <button class="btn-sm primary" style="margin-top:12px" onclick="calcularEstorno()">Atualizar cálculo</button>
+            </div>
+          </div>
+
+          <!-- ===== TAB 3: POLÍTICA DE FALTAS ===== -->
+          <div class="doc-panel" id="tabFalta">
+            <div class="doc-juridico" id="docFalta">
+              <div class="doc-header">
+                <div class="razao">Life Varizes</div>
+                <div class="info-clinica">
+                  CNPJ 44.224.931/0001-49 · Responsável Técnica: Dra. Maíra Vilela — CRM 024085/DF<br>
+                  SMHN Quadra 2, Bloco B, Consultório 1512, Edif. Cleo Octavio, Asa Norte, Brasília-DF — CEP 70710-146
+                </div>
+              </div>
+              <div class="doc-titulo">Termo de Ciência — Política de Faltas e Cancelamentos</div>
+
+              <p>Pelo presente instrumento, <span class="campo-inline" id="fal_nome"></span>, portador(a) do CPF nº <span class="campo-inline" id="fal_cpf"></span>, doravante denominado(a) <strong>PACIENTE</strong>, declara ter lido, compreendido e concordado integralmente com a política de faltas e cancelamentos da <strong>Life Varizes</strong>, conforme descrito a seguir.</p>
+
+              <div class="clausula">CLÁUSULA 1ª — DO AVISO PRÉVIO OBRIGATÓRIO</div>
+              <p>O PACIENTE compromete-se a comunicar qualquer cancelamento ou necessidade de reagendamento de consulta, sessão ou procedimento com antecedência mínima de <strong>24 (vinte e quatro) horas</strong> em relação ao horário agendado, por qualquer dos canais de atendimento disponibilizados pela clínica (telefone, WhatsApp ou sistema de agendamento online).</p>
+
+              <div class="clausula">CLÁUSULA 2ª — DAS FALTAS NÃO JUSTIFICADAS</div>
+              <p>Considera-se <strong>falta não justificada</strong> toda ausência do PACIENTE sem comunicação prévia de, no mínimo, <strong>24 (vinte e quatro) horas</strong> de antecedência. Faltas não justificadas acarretarão as seguintes consequências:</p>
+              <p><strong>a)</strong> A primeira falta não justificada será registrada e o PACIENTE será notificado formalmente;</p>
+              <p><strong>b)</strong> A partir da <strong>segunda falta não justificada</strong> (falta reincidente), a sessão ou consulta faltada será automaticamente contabilizada como <strong>sessão realizada</strong> para fins de cobrança, sendo o respectivo valor descontado do saldo do tratamento contratado ou cobrado separadamente, conforme o caso.</p>
+
+              <div class="clausula">CLÁUSULA 3ª — DA JUSTIFICATIVA DA POLÍTICA</div>
+              <p>O PACIENTE reconhece e concorda que a presente política se justifica pelos seguintes fatores: (i) a profissional se prepara antecipadamente para cada atendimento, alocando tempo, materiais e equipe exclusivamente para cada paciente agendado; (ii) a vaga ocupada por um paciente ausente impossibilita o atendimento de outro paciente que necessita e aguarda por aquela vaga; (iii) o não comparecimento sem aviso prévio representa prejuízo econômico e operacional à clínica, que não pode ser absorvido de forma reiterada.</p>
+
+              <div class="clausula">CLÁUSULA 4ª — DAS SITUAÇÕES DE FORÇA MAIOR</div>
+              <p>Situações de comprovada força maior ou caso fortuito (emergências médicas documentadas, acidentes, hospitalização) serão analisadas individualmente pela direção da clínica, podendo resultar na não aplicação da cobrança, mediante apresentação de documentação comprobatória no prazo de até <strong>48 (quarenta e oito) horas</strong> após a falta.</p>
+
+              <div class="clausula">CLÁUSULA 5ª — DA VALIDADE</div>
+              <p>O presente termo integra o Contrato de Prestação de Serviços Médicos firmado entre as partes e é válido por toda a duração do tratamento contratado, independentemente do número de sessões realizadas.</p>
+
+              <p style="margin-top:20px">Brasília-DF, <span class="campo-inline" id="fal_data" style="min-width:200px"></span>.</p>
+
+              <div class="assinaturas">
+                <div class="assinatura-bloco">
+                  ___________________________________<br>
+                  <strong><span id="fal_nome_ass"></span></strong><br>
+                  PACIENTE<br>
+                  CPF: <span id="fal_cpf_ass"></span>
+                </div>
+                <div class="assinatura-bloco">
+                  ___________________________________<br>
+                  <strong>Dra. Maíra Vilela</strong><br>
+                  Life Varizes · CRM 024085/DF<br>
+                  CNPJ 44.224.931/0001-49
+                </div>
+              </div>
+              <div class="rodape-doc">Documento gerado pelo Sistema de Gestão Life Varizes · Este documento possui validade jurídica quando assinado por ambas as partes.</div>
+            </div>
+          </div>
+
+        </div><!-- /card -->
+      </div><!-- /pgDocumentos -->
 
       <!-- ========== PÁGINA: FINANCEIRO ========== -->
       <div class="page" id="pgFinanceiro">
@@ -1070,15 +1463,16 @@ function showPage(id){
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 
-  const titles = { pgAgenda:'Agenda', pgProntuario:'Prontuários', pgFinanceiro:'Financeiro' };
+  const titles = { pgAgenda:'Agenda', pgProntuario:'Prontuários', pgFinanceiro:'Financeiro', pgDocumentos:'Documentos Jurídicos' };
   document.getElementById('topbarTitle').textContent = titles[id] || '';
 
   // Ativa nav item correspondente
-  const navMap = { pgAgenda:0, pgProntuario:1, pgFinanceiro:2 };
+  const navMap = { pgAgenda:0, pgProntuario:1, pgDocumentos:2, pgFinanceiro:3 };
   const navItems = document.querySelectorAll('.nav-item');
   if(navItems[navMap[id]]) navItems[navMap[id]].classList.add('active');
 
   if(id === 'pgFinanceiro') renderFinanceiro();
+  if(id === 'pgDocumentos') preencherDocs();
   closeSidebar();
 }
 function toggleSidebar(){
@@ -1181,13 +1575,21 @@ function buscarPaciente(){
   const dados = ls('pac_' + cpf, null);
   if(dados){
     const { info, atendimentos } = dados;
-    document.getElementById('p_nome').value    = info?.nome    || '';
-    document.getElementById('p_cpf').value     = info?.cpf     || '';
-    document.getElementById('p_nasc').value    = info?.nasc    || '';
-    document.getElementById('p_peso').value    = info?.peso    || '';
-    document.getElementById('p_altura').value  = info?.altura  || '';
-    document.getElementById('p_sangue').value  = info?.sangue  || '';
-    document.getElementById('p_doencas').value = info?.doencas || '';
+    document.getElementById('p_nome').value           = info?.nome           || '';
+    document.getElementById('p_cpf').value            = info?.cpf            || '';
+    document.getElementById('p_nasc').value           = info?.nasc           || '';
+    document.getElementById('p_peso').value           = info?.peso           || '';
+    document.getElementById('p_altura').value         = info?.altura         || '';
+    document.getElementById('p_sangue').value         = info?.sangue         || '';
+    document.getElementById('p_doencas').value        = info?.doencas        || '';
+    document.getElementById('p_endereco').value       = info?.endereco       || '';
+    document.getElementById('p_email').value          = info?.email          || '';
+    document.getElementById('p_telefone').value       = info?.telefone       || '';
+    document.getElementById('p_emerg_nome').value     = info?.emerg_nome     || '';
+    document.getElementById('p_emerg_tel').value      = info?.emerg_tel      || '';
+    document.getElementById('p_indicacao').value      = info?.indicacao      || '';
+    document.getElementById('p_indicacao_detalhe').value = info?.indicacao_detalhe || '';
+    toggleIndicacaoDetalhe();
     document.getElementById('pacStatusTag').textContent = 'Paciente encontrado';
     document.getElementById('pacStatusTag').className  = 'tag tag-green';
     status.textContent = `✅ Paciente encontrado: ${info?.nome || cpf}`;
@@ -1200,9 +1602,9 @@ function buscarPaciente(){
   }
 }
 function novoRegistro(){
-  ['p_nome','p_cpf','p_nasc','p_peso','p_altura','p_sangue','p_doencas',
+  ['p_nome','p_cpf','p_nasc','p_peso','p_altura','p_sangue','p_doencas','p_endereco','p_email','p_telefone','p_emerg_nome','p_emerg_tel','p_indicacao_detalhe',
    'a_data','a_obs','a_retorno','c_hospital','c_plano','c_principal','c_assistente',
-   'f_valor','buscarCPF'].forEach(id => {
+   'f_valor','f_plano_nome','buscarCPF','p_indicacao'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.value = '';
   });
@@ -1217,13 +1619,20 @@ function salvarPaciente(){
   if(!cpf){ toast('⚠️ Informe o CPF do paciente.'); return; }
   const dados = ls('pac_' + cpf, { info:{}, atendimentos:[] });
   dados.info = {
-    nome:    document.getElementById('p_nome').value,
-    cpf:     document.getElementById('p_cpf').value,
-    nasc:    document.getElementById('p_nasc').value,
-    peso:    document.getElementById('p_peso').value,
-    altura:  document.getElementById('p_altura').value,
-    sangue:  document.getElementById('p_sangue').value,
-    doencas: document.getElementById('p_doencas').value,
+    nome:              document.getElementById('p_nome').value,
+    cpf:               document.getElementById('p_cpf').value,
+    nasc:              document.getElementById('p_nasc').value,
+    peso:              document.getElementById('p_peso').value,
+    altura:            document.getElementById('p_altura').value,
+    sangue:            document.getElementById('p_sangue').value,
+    doencas:           document.getElementById('p_doencas').value,
+    endereco:          document.getElementById('p_endereco').value,
+    email:             document.getElementById('p_email').value,
+    telefone:          document.getElementById('p_telefone').value,
+    emerg_nome:        document.getElementById('p_emerg_nome').value,
+    emerg_tel:         document.getElementById('p_emerg_tel').value,
+    indicacao:         document.getElementById('p_indicacao').value,
+    indicacao_detalhe: document.getElementById('p_indicacao_detalhe').value,
   };
   lsSet('pac_' + cpf, dados);
   toast('✅ Dados do paciente salvos!');
@@ -1262,7 +1671,12 @@ function salvarAtendimento(){
     tipo,
     obs:       document.getElementById('a_obs').value,
     retorno:   document.getElementById('a_retorno').value,
-    financeiro:{ valor:val, forma, total:(val*fat).toFixed(2), status:document.getElementById('f_status').value },
+    financeiro:{
+      valor:val, forma, total:(val*fat).toFixed(2),
+      status:document.getElementById('f_status').value,
+      cobertura: document.querySelector('input[name=cobertura]:checked')?.value || 'particular',
+      plano: document.getElementById('f_plano_nome').value || ''
+    },
   };
   if(tipo === 'cirurgia'){
     atend.cirurgia = {
@@ -1381,6 +1795,147 @@ function renderFinanceiro(){
       </tbody>
     </table>`;
 }
+
+/* ===================== HELPERS NOVOS CAMPOS ===================== */
+function toggleIndicacaoDetalhe(){
+  const v = document.getElementById('p_indicacao').value;
+  const show = v === 'indicacao_paciente' || v === 'indicacao_medico' || v === 'outro';
+  document.getElementById('indicacaoDetalheField').style.display = show ? '' : 'none';
+}
+function togglePlano(){
+  const isPlano = document.getElementById('cob_plano').checked;
+  document.getElementById('campoPlano').style.display = isPlano ? '' : 'none';
+  // plano: disable valor/pagamento fields (covered by insurance)
+  const disableVal = isPlano;
+  // Keep enabled — plano may still have co-payment
+}
+
+/* ===================== DOCUMENTOS JURÍDICOS ===================== */
+const CLINICA = {
+  nome: 'Life Varizes',
+  cnpj: '44.224.931/0001-49',
+  medica: 'Dra. Maíra Vilela',
+  crm: 'CRM 024085/DF',
+  end: 'SMHN Quadra 2, Bloco B, Consultório 1512, Edif. Cleo Octavio, Asa Norte, Brasília-DF, CEP 70710-146',
+  tel: '(61) 98589-5499'
+};
+
+function showDocTab(id) {
+  document.querySelectorAll('.doc-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.doc-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  // Ativa o botão correspondente
+  const idx = ['tabContrato','tabCancelamento','tabFalta'].indexOf(id);
+  document.querySelectorAll('.doc-tab')[idx]?.classList.add('active');
+  preencherDocs();
+}
+
+function preencherDocs() {
+  const nome  = document.getElementById('p_nome')?.value  || '______________________________';
+  const cpf   = document.getElementById('p_cpf')?.value   || '___.___.___-__';
+  const tipo  = capitalizar(document.getElementById('a_tipo')?.value || 'Consulta/Tratamento');
+  const valor = document.getElementById('f_valor')?.value
+    ? fmtBRL(document.getElementById('f_valor').value) : 'R$ _________';
+  const forma = document.getElementById('f_pagamento')?.options[document.getElementById('f_pagamento')?.selectedIndex]?.text || '___________';
+  const hoje  = new Date().toLocaleDateString('pt-BR', {day:'2-digit',month:'long',year:'numeric'});
+
+  // --- Contrato ---
+  const setTxt = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v; };
+  setTxt('ct_nome_c', nome);      setTxt('ct_nome_ass', nome);
+  setTxt('ct_cpf_c',  cpf);       setTxt('ct_cpf_ass',  cpf);
+  setTxt('ct_tipo_c', tipo);
+  setTxt('ct_valor_c', valor);
+  setTxt('ct_pagamento_c', forma);
+  setTxt('ct_data_c', hoje);
+
+  // --- Cancelamento ---
+  setTxt('can_nome', nome);       setTxt('can_nome_ass', nome);
+  setTxt('can_cpf',  cpf);        setTxt('can_cpf_ass',  cpf);
+  setTxt('can_tipo', tipo);
+  setTxt('can_data_ass', hoje);
+  setTxt('can_data_contrato', hoje);
+  setTxt('can_valor_total', valor);
+  setTxt('can_forma_pag', forma);
+
+  // --- Faltas ---
+  setTxt('fal_nome', nome);       setTxt('fal_nome_ass', nome);
+  setTxt('fal_cpf',  cpf);        setTxt('fal_cpf_ass',  cpf);
+  setTxt('fal_data', hoje);
+
+  calcularEstorno();
+}
+
+function calcularEstorno() {
+  const valorBase   = Number(document.getElementById('f_valor')?.value) || 0;
+  const formaPag    = document.getElementById('f_pagamento')?.value || 'pix';
+  const fatores     = { pix:1, '3x':1.03, '6x':1.05, '10x':1.10 };
+  const totalPago   = valorBase * (fatores[formaPag] || 1);
+
+  const sessoesReal  = Number(document.getElementById('in_sessoes_real')?.value)  || 0;
+  const sessoesTotal = Number(document.getElementById('in_sessoes_total')?.value) || 1;
+  const taxaAdmin    = Number(document.getElementById('in_taxa_admin')?.value)    || 10;
+  const taxaCartao   = Number(document.getElementById('in_taxa_cartao')?.value)   || 0;
+  const formaRest    = document.getElementById('in_forma_rest')?.value || 'PIX / Transferência bancária';
+
+  const custoSessao  = sessoesTotal > 0 ? totalPago / sessoesTotal : 0;
+  const valorSessoes = custoSessao * sessoesReal;
+  const valorAdmin   = totalPago * taxaAdmin / 100;
+  const valorCartao  = totalPago * taxaCartao / 100;
+  const restituir    = Math.max(0, totalPago - valorSessoes - valorAdmin - valorCartao);
+
+  const setTxt = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v; };
+  setTxt('can_sessoes_real',  sessoesReal.toString());
+  setTxt('can_sessoes_total', sessoesTotal.toString());
+  setTxt('can_valor_sessao',  fmtBRL(custoSessao));
+  setTxt('can_calc_pago',     fmtBRL(totalPago));
+  setTxt('can_calc_sessoes',  `${sessoesReal} x ${fmtBRL(custoSessao)} = ${fmtBRL(valorSessoes)}`);
+  setTxt('can_calc_taxa',     `${taxaAdmin}% = ${fmtBRL(valorAdmin)}`);
+  setTxt('can_calc_cartao',   taxaCartao > 0 ? `${taxaCartao}% = ${fmtBRL(valorCartao)}` : 'Não aplicável');
+  setTxt('can_calc_restituir', fmtBRL(restituir));
+  setTxt('can_forma_restituicao', formaRest);
+}
+
+function imprimirDoc() {
+  // Identifica qual aba está ativa
+  const paineis = ['tabContrato','tabCancelamento','tabFalta'];
+  const docIds  = ['docContrato','docCancelamento','docFalta'];
+  let docAtivo  = document.getElementById('docContrato');
+  paineis.forEach((p,i) => {
+    if(document.getElementById(p)?.classList.contains('active')) {
+      docAtivo = document.getElementById(docIds[i]);
+    }
+  });
+  if(!docAtivo) return;
+
+  const printWin = window.open('', '_blank', 'width=900,height=700');
+  printWin.document.write(`
+    <!DOCTYPE html><html lang="pt-BR"><head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+      body { font-family:'DM Sans',sans-serif; font-size:12px; color:#222; padding:32px; line-height:1.8; }
+      .doc-header { text-align:center; border-bottom:2px solid #0f2b4a; padding-bottom:14px; margin-bottom:20px; }
+      .razao { font-family:'Playfair Display',serif; font-size:15px; font-weight:700; color:#0f2b4a; }
+      .info-clinica { font-size:10px; color:#666; margin-top:4px; }
+      .doc-titulo { font-family:'Playfair Display',serif; font-size:13px; font-weight:700; color:#0f2b4a; text-align:center; text-transform:uppercase; letter-spacing:.06em; margin:16px 0; padding:8px; background:#f9fafb; border:1px solid #e2e6ec; border-radius:6px; }
+      p { margin-bottom:8px; text-align:justify; }
+      .clausula { font-weight:700; color:#0f2b4a; margin-top:14px; margin-bottom:4px; }
+      .campo-inline { display:inline-block; min-width:120px; border-bottom:1px solid #999; font-weight:600; color:#0f2b4a; padding:0 3px; }
+      .assinaturas { margin-top:40px; display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+      .assinatura-bloco { text-align:center; border-top:1px solid #555; padding-top:8px; font-size:10px; color:#666; line-height:1.5; }
+      .assinatura-bloco strong { color:#0f2b4a; }
+      .rodape-doc { margin-top:24px; padding-top:10px; border-top:1px solid #e2e6ec; font-size:9px; color:#aaa; text-align:center; }
+      .calc-box { background:#f9fafb; border-radius:6px; padding:12px; margin:8px 0; border:1px solid #e2e6ec; }
+    </style>
+    </head><body>
+    ${docAtivo.innerHTML}
+    </body></html>
+  `);
+  printWin.document.close();
+  printWin.focus();
+  setTimeout(() => { printWin.print(); }, 800);
+}
+
 </script>
 </body>
 </html>
