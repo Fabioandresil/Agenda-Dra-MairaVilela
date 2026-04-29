@@ -1118,7 +1118,10 @@ function togglePlano(){
               <div class="card-title">Documentos Jurídicos</div>
               <div class="card-sub">Preenchidos automaticamente com os dados do paciente ativo</div>
             </div>
-            <button class="btn-imprimir" onclick="imprimirDoc()">🖨️ Imprimir / Salvar PDF</button>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn-imprimir" onclick="imprimirDoc()">🖨️ Imprimir (com dados)</button>
+            <button class="btn-imprimir" onclick="gerarPdfEmBranco()" style="border-color:var(--teal);color:var(--teal)">📄 PDF para preencher à caneta</button>
+          </div>
           </div>
 
           <div class="doc-tabs">
@@ -1895,45 +1898,329 @@ function calcularEstorno() {
   setTxt('can_forma_restituicao', formaRest);
 }
 
-function imprimirDoc() {
-  // Identifica qual aba está ativa
+/* ====== UTILITÁRIOS DE IMPRESSÃO ====== */
+const DOC_CSS = `
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+  * { box-sizing: border-box; }
+  body { font-family:'DM Sans',sans-serif; font-size:11.5px; color:#222; padding:28px 36px; line-height:1.75; }
+  .doc-header { text-align:center; border-bottom:2.5px solid #0f2b4a; padding-bottom:12px; margin-bottom:18px; }
+  .razao { font-family:'Playfair Display',serif; font-size:15px; font-weight:700; color:#0f2b4a; }
+  .info-clinica { font-size:9.5px; color:#555; margin-top:3px; line-height:1.5; }
+  .doc-titulo { font-family:'Playfair Display',serif; font-size:12.5px; font-weight:700; color:#0f2b4a;
+    text-align:center; text-transform:uppercase; letter-spacing:.07em;
+    margin:14px 0; padding:7px; background:#f5f7fa; border:1px solid #dde1e8; border-radius:5px; }
+  p { margin-bottom:8px; text-align:justify; }
+  .clausula { font-weight:700; color:#0f2b4a; margin-top:14px; margin-bottom:4px; font-size:11.5px; }
+  .campo-inline { display:inline-block; border-bottom:1px solid #888; font-weight:600;
+    color:#0f2b4a; padding:0 3px; vertical-align:bottom; }
+  .assinaturas { margin-top:36px; display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  .assinatura-bloco { text-align:center; border-top:1px solid #444; padding-top:8px;
+    font-size:9.5px; color:#555; line-height:1.5; }
+  .assinatura-bloco strong { color:#0f2b4a; }
+  .rodape-doc { margin-top:20px; padding-top:8px; border-top:1px solid #dde1e8;
+    font-size:8.5px; color:#aaa; text-align:center; }
+`;
+
+const DOC_CSS_BRANCO = `
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+  * { box-sizing: border-box; }
+  body { font-family:'DM Sans',sans-serif; font-size:11.5px; color:#222; padding:28px 36px; line-height:1.75; }
+  .doc-header { text-align:center; border-bottom:2.5px solid #0f2b4a; padding-bottom:12px; margin-bottom:18px; }
+  .razao { font-family:'Playfair Display',serif; font-size:15px; font-weight:700; color:#0f2b4a; }
+  .info-clinica { font-size:9.5px; color:#555; margin-top:3px; line-height:1.5; }
+  .doc-titulo { font-family:'Playfair Display',serif; font-size:12.5px; font-weight:700; color:#0f2b4a;
+    text-align:center; text-transform:uppercase; letter-spacing:.07em;
+    margin:14px 0; padding:7px; background:#f5f7fa; border:1px solid #dde1e8; border-radius:5px; }
+  p { margin-bottom:8px; text-align:justify; }
+  .clausula { font-weight:700; color:#0f2b4a; margin-top:14px; margin-bottom:4px; font-size:11.5px; }
+  /* Campos para preenchimento à caneta — linha longa e em branco */
+  .campo-inline {
+    display:inline-block;
+    min-width:180px;
+    border:none;
+    border-bottom:1.2px solid #333;
+    font-weight:400;
+    color:transparent;   /* texto invisível — campo em branco */
+    background:transparent;
+    padding:0 4px;
+    vertical-align:bottom;
+  }
+  /* Caixa de cálculo simplificada para preenchimento manual */
+  .calc-linha {
+    display:flex; justify-content:space-between;
+    border-bottom:0.8px solid #ccc; padding:4px 8px; margin:3px 0;
+    font-size:11px;
+  }
+  .calc-linha .val { min-width:120px; border-bottom:1px solid #333; }
+  .assinaturas { margin-top:40px; display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  .assinatura-bloco { text-align:center; border-top:1px solid #444; padding-top:8px;
+    font-size:9.5px; color:#555; line-height:1.5; }
+  .assinatura-bloco strong { color:#0f2b4a; }
+  .rodape-doc { margin-top:20px; padding-top:8px; border-top:1px solid #dde1e8;
+    font-size:8.5px; color:#aaa; text-align:center; }
+  /* Linhas de espaço para preenchimento manual */
+  .linha-preencher {
+    display:block; width:100%;
+    border-bottom:1px solid #aaa;
+    margin:6px 0; height:20px;
+  }
+  @media print {
+    body { padding:20px 28px; }
+    .no-print { display:none !important; }
+  }
+`;
+
+function getDocAtivo() {
   const paineis = ['tabContrato','tabCancelamento','tabFalta'];
   const docIds  = ['docContrato','docCancelamento','docFalta'];
-  let docAtivo  = document.getElementById('docContrato');
-  paineis.forEach((p,i) => {
-    if(document.getElementById(p)?.classList.contains('active')) {
-      docAtivo = document.getElementById(docIds[i]);
-    }
-  });
-  if(!docAtivo) return;
+  for(let i=0; i<paineis.length; i++){
+    if(document.getElementById(paineis[i])?.classList.contains('active'))
+      return { el: document.getElementById(docIds[i]), tipo: paineis[i] };
+  }
+  return { el: document.getElementById('docContrato'), tipo: 'tabContrato' };
+}
 
-  const printWin = window.open('', '_blank', 'width=900,height=700');
-  printWin.document.write(`
-    <!DOCTYPE html><html lang="pt-BR"><head>
+function imprimirDoc() {
+  const { el } = getDocAtivo();
+  if(!el) return;
+  const win = window.open('', '_blank', 'width=900,height=750');
+  win.document.write(`<!DOCTYPE html><html lang="pt-BR"><head>
+    <meta charset="UTF-8"><title>Documento</title>
+    <style>${DOC_CSS}</style></head><body>${el.innerHTML}</body></html>`);
+  win.document.close();
+  win.focus();
+  setTimeout(() => win.print(), 900);
+}
+
+/* ====== PDF EM BRANCO PARA PREENCHIMENTO À CANETA ====== */
+function gerarPdfEmBranco() {
+  const { tipo } = getDocAtivo();
+  const hoje = new Date().toLocaleDateString('pt-BR', {day:'2-digit',month:'long',year:'numeric'});
+
+  const HEADER = `
+    <div class="doc-header">
+      <div class="razao">Life Varizes</div>
+      <div class="info-clinica">
+        CNPJ 44.224.931/0001-49 · Responsável Técnica: Dra. Maíra Vilela — CRM 024085/DF<br>
+        SMHN Quadra 2, Bloco B, Consultório 1512, Edif. Cleo Octavio, Asa Norte, Brasília-DF — CEP 70710-146<br>
+        Telefone: (61) 98589-5499
+      </div>
+    </div>`;
+
+  const ASSINATURAS = (lado1, info1, lado2, info2) => `
+    <div class="assinaturas">
+      <div class="assinatura-bloco">
+        <br><br>___________________________________<br>
+        <strong>${lado1}</strong><br>${info1}
+      </div>
+      <div class="assinatura-bloco">
+        <br><br>___________________________________<br>
+        <strong>${lado2}</strong><br>${info2}
+      </div>
+    </div>`;
+
+  const RODAPE = `<div class="rodape-doc">Life Varizes — Documento para preenchimento manual · Impresso em ${hoje}</div>`;
+
+  let html = '';
+
+  if(tipo === 'tabContrato') {
+    html = `
+      ${HEADER}
+      <div class="doc-titulo">Contrato de Prestação de Serviços Médicos</div>
+
+      <p><strong>CONTRATANTE:</strong>
+        Nome: <span class="campo-inline" style="min-width:240px">_</span>
+        CPF nº <span class="campo-inline" style="min-width:160px">_</span>
+      </p>
+      <p><strong>CONTRATADA:</strong> <strong>Life Varizes</strong>, CNPJ 44.224.931/0001-49,
+        representada pela Dra. Maíra Vilela, CRM 024085/DF.</p>
+      <p>As partes celebram o presente Contrato de Prestação de Serviços Médicos,
+        nos termos das cláusulas a seguir.</p>
+
+      <div class="clausula">CLÁUSULA 1ª — DO OBJETO</div>
+      <p>Prestação de serviços médicos especializados em Cirurgia Vascular, especificamente:
+        <br><span class="linha-preencher"></span>
+      </p>
+
+      <div class="clausula">CLÁUSULA 2ª — DO VALOR E FORMA DE PAGAMENTO</div>
+      <p>Valor total: R$ <span class="campo-inline" style="min-width:120px">_</span>
+        &nbsp;&nbsp; Forma de pagamento: <span class="campo-inline" style="min-width:180px">_</span>
+      </p>
+      <p>O pagamento será efetuado conforme acordado entre as partes, sendo o início
+        do tratamento condicionado à confirmação do pagamento.</p>
+
+      <div class="clausula">CLÁUSULA 3ª — DAS OBRIGAÇÕES DA CONTRATADA</div>
+      <p>A CONTRATADA obriga-se a prestar os serviços com zelo e competência, informar
+        sobre riscos e benefícios, e guardar sigilo das informações (Código de Ética Médica).</p>
+
+      <div class="clausula">CLÁUSULA 4ª — DAS OBRIGAÇÕES DO CONTRATANTE</div>
+      <p>O CONTRATANTE obriga-se a fornecer informações verídicas sobre seu estado de saúde,
+        seguir as orientações médicas, comunicar cancelamentos com mínimo de 24h de antecedência
+        e efetuar pagamentos nas datas acordadas.</p>
+
+      <div class="clausula">CLÁUSULA 5ª — DA POLÍTICA DE FALTAS E CANCELAMENTOS</div>
+      <p>Faltas sem aviso prévio mínimo de <strong>24 horas</strong> serão contabilizadas como
+        sessão realizada. Em caso de cancelamento do tratamento, aplica-se o Termo de
+        Cancelamento específico.</p>
+
+      <div class="clausula">CLÁUSULA 6ª — DA RESPONSABILIDADE</div>
+      <p>A responsabilidade da CONTRATADA limita-se ao emprego de técnicas adequadas e
+        reconhecidas pela medicina, não se responsabilizando por resultados que dependam
+        de fatores biológicos individuais do CONTRATANTE.</p>
+
+      <div class="clausula">CLÁUSULA 7ª — DO FORO</div>
+      <p>Foro da Comarca de <strong>Brasília, Distrito Federal</strong>.</p>
+
+      <p style="margin-top:18px">Brasília-DF, _____ de _________________ de ________.</p>
+
+      ${ASSINATURAS(
+        'CONTRATANTE','CPF: ___.___.___-__',
+        'Dra. Maíra Vilela','Life Varizes · CRM 024085/DF · CNPJ 44.224.931/0001-49'
+      )}
+      ${RODAPE}`;
+  }
+
+  else if(tipo === 'tabCancelamento') {
+    html = `
+      ${HEADER}
+      <div class="doc-titulo">Termo de Cancelamento de Tratamento</div>
+
+      <p>Eu, <span class="campo-inline" style="min-width:260px">_</span>,
+        CPF nº <span class="campo-inline" style="min-width:160px">_</span>,
+        declaro optar pelo <strong>cancelamento do tratamento</strong> contratado junto à
+        <strong>Life Varizes</strong>, ciente das condições abaixo.</p>
+
+      <div class="clausula">CLÁUSULA 1ª — DO TRATAMENTO CANCELADO</div>
+      <p>Tratamento de: <span class="linha-preencher"></span>
+        Contratado em: <span class="campo-inline" style="min-width:140px">_</span>
+        &nbsp; Valor total: R$ <span class="campo-inline" style="min-width:100px">_</span>
+        &nbsp; Forma de pagamento: <span class="campo-inline" style="min-width:120px">_</span>
+      </p>
+
+      <div class="clausula">CLÁUSULA 2ª — DAS SESSÕES REALIZADAS</div>
+      <p>Sessões realizadas: <span class="campo-inline" style="min-width:60px">_</span>
+        do total de <span class="campo-inline" style="min-width:60px">_</span> sessões,
+        ao custo unitário de R$ <span class="campo-inline" style="min-width:80px">_</span>
+        por sessão.
+      </p>
+
+      <div class="clausula">CLÁUSULA 3ª — DO CÁLCULO DO ESTORNO</div>
+      <div style="background:#f5f7fa;border-radius:6px;padding:14px 16px;margin:8px 0;border:1px solid #dde1e8">
+        <div class="calc-linha">
+          <span>Valor total pago:</span>
+          <span class="val">R$ _______________</span>
+        </div>
+        <div class="calc-linha">
+          <span>(–) Sessões realizadas:</span>
+          <span class="val">R$ _______________</span>
+        </div>
+        <div class="calc-linha">
+          <span>(–) Taxa administrativa / impostos (____%):</span>
+          <span class="val">R$ _______________</span>
+        </div>
+        <div class="calc-linha">
+          <span>(–) Taxa de cartão de crédito (____%):</span>
+          <span class="val">R$ _______________</span>
+        </div>
+        <div class="calc-linha" style="font-weight:700;border-top:1.5px solid #0f2b4a;margin-top:6px;padding-top:6px">
+          <span>Valor a restituir:</span>
+          <span class="val">R$ _______________</span>
+        </div>
+      </div>
+
+      <div class="clausula">CLÁUSULA 4ª — DAS CONDIÇÕES DE RESTITUIÇÃO</div>
+      <p>O valor será restituído em até <strong>30 dias úteis</strong>, mediante:
+        <span class="campo-inline" style="min-width:220px">_</span>
+        (PIX, transferência ou estorno no cartão).
+      </p>
+
+      <div class="clausula">CLÁUSULA 5ª — DA DECLARAÇÃO DO PACIENTE</div>
+      <p>O PACIENTE declara estar ciente de que: (i) sessões já realizadas não são
+        passíveis de estorno; (ii) encargos e taxas serão descontados; (iii) a
+        solicitação é irrevogável após assinatura; (iv) não impede retomada futura
+        do tratamento mediante novo contrato.</p>
+
+      <div class="clausula">CLÁUSULA 6ª — DO FORO</div>
+      <p>Foro da Comarca de <strong>Brasília, Distrito Federal</strong>.</p>
+
+      <p style="margin-top:18px">Brasília-DF, _____ de _________________ de ________.</p>
+
+      ${ASSINATURAS(
+        'PACIENTE','CPF: ___.___.___-__',
+        'Dra. Maíra Vilela','Life Varizes · CRM 024085/DF · CNPJ 44.224.931/0001-49'
+      )}
+      ${RODAPE}`;
+  }
+
+  else {
+    html = `
+      ${HEADER}
+      <div class="doc-titulo">Termo de Ciência — Política de Faltas e Cancelamentos</div>
+
+      <p>Eu, <span class="campo-inline" style="min-width:260px">_</span>,
+        CPF nº <span class="campo-inline" style="min-width:160px">_</span>,
+        declaro ter lido, compreendido e concordado com a política de faltas e
+        cancelamentos da <strong>Life Varizes</strong>, conforme descrito a seguir.</p>
+
+      <div class="clausula">CLÁUSULA 1ª — DO AVISO PRÉVIO OBRIGATÓRIO</div>
+      <p>Comprometo-me a comunicar qualquer cancelamento ou reagendamento com antecedência
+        mínima de <strong>24 (vinte e quatro) horas</strong>, por telefone, WhatsApp ou
+        sistema de agendamento da clínica.</p>
+
+      <div class="clausula">CLÁUSULA 2ª — DAS FALTAS NÃO JUSTIFICADAS</div>
+      <p><strong>a)</strong> A primeira falta não justificada será registrada e o paciente
+        será notificado formalmente.</p>
+      <p><strong>b)</strong> A partir da <strong>segunda falta não justificada</strong>
+        (falta reincidente), a sessão faltada será contabilizada como <strong>sessão
+        realizada</strong> para fins de cobrança, sendo descontada do saldo do tratamento
+        ou cobrada separadamente.</p>
+
+      <div class="clausula">CLÁUSULA 3ª — DA JUSTIFICATIVA DA POLÍTICA</div>
+      <p>O PACIENTE reconhece que a política se justifica porque: (i) a profissional
+        se prepara antecipadamente para cada atendimento; (ii) a vaga ocupada por
+        paciente ausente impede o atendimento de outros; (iii) o não comparecimento
+        representa prejuízo econômico e operacional à clínica.</p>
+
+      <div class="clausula">CLÁUSULA 4ª — DAS SITUAÇÕES DE FORÇA MAIOR</div>
+      <p>Emergências médicas documentadas serão analisadas individualmente, com
+        apresentação de comprovante em até <strong>48 horas</strong> após a falta.</p>
+
+      <div class="clausula">CLÁUSULA 5ª — DA VALIDADE</div>
+      <p>Este termo integra o Contrato de Prestação de Serviços e é válido por toda
+        a duração do tratamento contratado.</p>
+
+      <p style="margin-top:18px">Brasília-DF, _____ de _________________ de ________.</p>
+
+      ${ASSINATURAS(
+        'PACIENTE','CPF: ___.___.___-__',
+        'Dra. Maíra Vilela','Life Varizes · CRM 024085/DF · CNPJ 44.224.931/0001-49'
+      )}
+      ${RODAPE}`;
+  }
+
+  const titulos = {
+    tabContrato: 'Contrato de Prestação de Serviços',
+    tabCancelamento: 'Termo de Cancelamento',
+    tabFalta: 'Política de Faltas'
+  };
+
+  const win = window.open('', '_blank', 'width=900,height=750');
+  win.document.write(`<!DOCTYPE html><html lang="pt-BR"><head>
     <meta charset="UTF-8">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <style>
-      body { font-family:'DM Sans',sans-serif; font-size:12px; color:#222; padding:32px; line-height:1.8; }
-      .doc-header { text-align:center; border-bottom:2px solid #0f2b4a; padding-bottom:14px; margin-bottom:20px; }
-      .razao { font-family:'Playfair Display',serif; font-size:15px; font-weight:700; color:#0f2b4a; }
-      .info-clinica { font-size:10px; color:#666; margin-top:4px; }
-      .doc-titulo { font-family:'Playfair Display',serif; font-size:13px; font-weight:700; color:#0f2b4a; text-align:center; text-transform:uppercase; letter-spacing:.06em; margin:16px 0; padding:8px; background:#f9fafb; border:1px solid #e2e6ec; border-radius:6px; }
-      p { margin-bottom:8px; text-align:justify; }
-      .clausula { font-weight:700; color:#0f2b4a; margin-top:14px; margin-bottom:4px; }
-      .campo-inline { display:inline-block; min-width:120px; border-bottom:1px solid #999; font-weight:600; color:#0f2b4a; padding:0 3px; }
-      .assinaturas { margin-top:40px; display:grid; grid-template-columns:1fr 1fr; gap:24px; }
-      .assinatura-bloco { text-align:center; border-top:1px solid #555; padding-top:8px; font-size:10px; color:#666; line-height:1.5; }
-      .assinatura-bloco strong { color:#0f2b4a; }
-      .rodape-doc { margin-top:24px; padding-top:10px; border-top:1px solid #e2e6ec; font-size:9px; color:#aaa; text-align:center; }
-      .calc-box { background:#f9fafb; border-radius:6px; padding:12px; margin:8px 0; border:1px solid #e2e6ec; }
-    </style>
+    <title>${titulos[tipo]} — Life Varizes</title>
+    <style>${DOC_CSS_BRANCO}</style>
     </head><body>
-    ${docAtivo.innerHTML}
-    </body></html>
-  `);
-  printWin.document.close();
-  printWin.focus();
-  setTimeout(() => { printWin.print(); }, 800);
+    <div class="no-print" style="background:#1a5fa8;color:white;padding:10px 20px;margin:-28px -36px 20px;
+      display:flex;align-items:center;justify-content:space-between;font-family:sans-serif;font-size:13px">
+      <span>📄 ${titulos[tipo]} — Para preenchimento à caneta</span>
+      <button onclick="window.print()" style="background:white;color:#1a5fa8;border:none;
+        padding:7px 18px;border-radius:6px;font-weight:700;cursor:pointer;font-size:13px">
+        🖨️ Imprimir / Salvar PDF
+      </button>
+    </div>
+    ${html}
+    </body></html>`);
+  win.document.close();
 }
 
 </script>
